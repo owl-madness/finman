@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:finman/features/transaction/transaction_type.dart';
+import 'package:finman/features/transactions/transaction_type.dart';
 
 final transactionTypeConverter = TransactionTypeConverter();
 

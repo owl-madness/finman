@@ -1,6 +1,7 @@
+import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:finman/core/database/app_database.dart';
-import 'package:finman/features/transaction/transaction_type.dart';
+import 'package:finman/features/transactions/transaction_type.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -18,8 +19,8 @@ void main() {
       type: TransactionType.expense,
       icon: 'restaurant',
       color: 0xFFF44336,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: Value(now),
+      updatedAt: Value(now),
     );
 
     // act

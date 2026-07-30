@@ -82,7 +82,8 @@ class $CategoriesTable extends Categories
     aliasedName,
     false,
     type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
   );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
@@ -93,7 +94,8 @@ class $CategoriesTable extends Categories
     aliasedName,
     false,
     type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
   );
   @override
   List<GeneratedColumn> get $columns => [
@@ -156,16 +158,12 @@ class $CategoriesTable extends Categories
         _createdAtMeta,
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
-    } else if (isInserting) {
-      context.missing(_createdAtMeta);
     }
     if (data.containsKey('updated_at')) {
       context.handle(
         _updatedAtMeta,
         updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
     }
     return context;
   }
@@ -393,14 +391,12 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     required String icon,
     required int color,
     this.isDefault = const Value.absent(),
-    required DateTime createdAt,
-    required DateTime updatedAt,
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
   }) : name = Value(name),
        type = Value(type),
        icon = Value(icon),
-       color = Value(color),
-       createdAt = Value(createdAt),
-       updatedAt = Value(updatedAt);
+       color = Value(color);
   static Insertable<Category> custom({
     Expression<int>? id,
     Expression<String>? name,
@@ -1022,8 +1018,8 @@ typedef $$CategoriesTableCreateCompanionBuilder =
       required String icon,
       required int color,
       Value<bool> isDefault,
-      required DateTime createdAt,
-      required DateTime updatedAt,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
     });
 typedef $$CategoriesTableUpdateCompanionBuilder =
     CategoriesCompanion Function({
@@ -1299,8 +1295,8 @@ class $$CategoriesTableTableManager
                 required String icon,
                 required int color,
                 Value<bool> isDefault = const Value.absent(),
-                required DateTime createdAt,
-                required DateTime updatedAt,
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
               }) => CategoriesCompanion.insert(
                 id: id,
                 name: name,
