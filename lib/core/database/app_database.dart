@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:finman/core/database/converters/transaction_type_converter.dart';
 import 'package:finman/core/database/tables/categories.dart';
 import 'package:finman/core/database/tables/transactions.dart';
+import 'package:finman/features/categories/constants/default_categories.dart';
 import 'package:finman/features/transactions/transaction_type.dart';
 
 part 'app_database.g.dart';
@@ -13,6 +14,33 @@ class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 1;
 
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) async {
+          await m.createAll();
+          await _seedDefaultCategories();
+        },
+      );
+
+  Future<void> _seedDefaultCategories() async {
+    await batch(
+      (batch) {
+        batch.insertAll(
+          categories,
+          defaultCategories.map(
+            (category) => CategoriesCompanion.insert(
+              name: category.name,
+              type: category.type,
+              icon: category.icon,
+              color: category.color,
+              isSystem: Value(category.isSystem),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   // Categories
   Future<int> addCategory(CategoriesCompanion category) {
     return into(categories).insert(category);
@@ -22,10 +50,23 @@ class AppDatabase extends _$AppDatabase {
     return select(categories).get();
   }
 
+  Future<List<Category>> getUserCategories() {
+    return (select(categories)..where((tbl) => tbl.isSystem.equals(false)))
+        .get();
+  }
+
+  Future<Category> getSystemCategory(TransactionType type) {
+    return (select(categories)
+          ..where((tbl) => tbl.isSystem.equals(true))
+          ..where((tbl) => tbl.type.equalsValue(type)))
+        .getSingle();
+  }
+
   Future<int> updateCategory(int id, CategoriesCompanion category) {
     return (update(
       categories,
-    )..where((tbl) => tbl.id.equals(id))).write(category);
+    )..where((tbl) => tbl.id.equals(id)))
+        .write(category);
   }
 
   Future<int> deleteCategory(int id) {
@@ -43,7 +84,8 @@ class AppDatabase extends _$AppDatabase {
   Future<int> updateTransaction(int id, TransactionsCompanion transaction) {
     return (update(
       transactions,
-    )..where((tbl) => tbl.id.equals(id))).write(transaction);
+    )..where((tbl) => tbl.id.equals(id)))
+        .write(transaction);
   }
 
   Future<int> deleteTransaction(int id) {
@@ -55,5 +97,34 @@ class AppDatabase extends _$AppDatabase {
       innerJoin(categories, categories.id.equalsExp(transactions.categoryId)),
     ]);
     return query.get();
+  }
+
+  Future<int> updateTransactionsCategory({
+    required int fromCategoryId,
+    required int toCategoryId,
+  }) {
+    return (update(transactions)
+          ..where((tbl) => tbl.categoryId.equals(fromCategoryId)))
+        .write(
+      TransactionsCompanion(
+        categoryId: Value(toCategoryId),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  Future<void> deleteCategoryAndReassignTransactions({
+    required Category category,
+  }) async {
+    await transaction(() async {
+      final systemCategory = await getSystemCategory(category.type);
+
+      await updateTransactionsCategory(
+        fromCategoryId: category.id,
+        toCategoryId: systemCategory.id,
+      );
+
+      await deleteCategory(category.id);
+    });
   }
 }

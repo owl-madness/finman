@@ -120,133 +120,143 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
               ],
       ),
       body: categoryAsync.when(
-        data: (categories) => Form(
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(height: 24),
-                  TextFormField(
-                    controller: _amountController,
-                    keyboardType: TextInputType.number,
-                    textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(
-                      label: Text("Amount"),
-                      hintText: "(in rupees) Eg. 100, 200",
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  DropdownButtonFormField<Category>(
-                    initialValue: _selectedCategory,
-                    hint: Text("Select category"),
-                    items: [
-                      ...categories.map(
-                        (e) => DropdownMenuItem(value: e, child: Text(e.name)),
+        data: (categories) {
+          final dropdownCategories = [...categories];
+          if (_selectedCategory?.isSystem == true) {
+            dropdownCategories.insert(0, _selectedCategory!);
+          }
+          return Form(
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 24),
+                    TextFormField(
+                      controller: _amountController,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                        label: Text("Amount"),
+                        hintText: "(in rupees) Eg. 100, 200",
                       ),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedCategory = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  TextFormField(
-                    controller: _titleController,
-                    textInputAction: TextInputAction.next,
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration: const InputDecoration(
-                      label: Text("Title"),
-                      hintText: "Eg. Lunch from KFC",
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  TextFormField(
-                    controller: _noteController,
-                    textInputAction: TextInputAction.next,
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration: const InputDecoration(
-                      label: Text("Note"),
-                      hintText: "Description",
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  ListTile(
-                    leading: const Icon(Icons.calendar_today),
-                    title: const Text('Transaction Date'),
-                    subtitle: Text(
-                      FinmanDateUtils.formatDate(_transactionDate),
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () async {
-                      final selectedDate = await showDatePicker(
-                        context: context,
-                        initialDate: _transactionDate,
-                        firstDate: DateTime(DateTime.now().year - 2),
-                        lastDate: DateTime.now(),
-                      );
-                      if (selectedDate != null) {
+                    const SizedBox(height: 24),
+                    DropdownButtonFormField<Category>(
+                      initialValue: _selectedCategory,
+                      hint: Text("Select category"),
+                      items: dropdownCategories
+                          .map(
+                            (category) => DropdownMenuItem(
+                              value: category,
+                              child: Text(category.name),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
                         setState(() {
-                          _transactionDate = selectedDate;
+                          _selectedCategory = value;
                         });
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () async {
-                      try {
-                        final amount = int.tryParse(_amountController.text);
-                        if (amount == null) return;
-
-                        if (_selectedCategory == null) return;
-
-                        final title = _titleController.text.trim();
-                        if (title.isEmpty) return;
-
-                        final calculatedAmount = amount * 100;
-                        if (widget.transactionModel != null) {
-                          final transaction = widget.transactionModel!.copyWith(
-                            amount: calculatedAmount,
-                            title: title,
-                            note: _noteController.text.trim(),
-                            transactionDate: _transactionDate,
-                            category: _selectedCategory,
-                          );
-
-                          await ref
-                              .read(transactionProvider.notifier)
-                              .updateTransaction(transaction);
-                        } else {
-                          final transaction = TransactionModel.create(
-                            amount: calculatedAmount,
-                            title: title,
-                            note: _noteController.text.trim(),
-                            transactionDate: _transactionDate,
-                            category: _selectedCategory!,
-                          );
-
-                          await ref
-                              .read(transactionProvider.notifier)
-                              .addTransaction(transaction);
-                        }
-
-                        if (context.mounted) context.pop();
-                      } catch (e) {
-                        debugPrint(e.toString());
-                      }
-                    },
-                    child: Text(
-                      widget.transactionModel != null ? 'Update' : 'Save',
+                      },
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                ],
+                    const SizedBox(height: 24),
+                    TextFormField(
+                      controller: _titleController,
+                      textInputAction: TextInputAction.next,
+                      textCapitalization: TextCapitalization.sentences,
+                      decoration: const InputDecoration(
+                        label: Text("Title"),
+                        hintText: "Eg. Lunch from KFC",
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    TextFormField(
+                      controller: _noteController,
+                      textInputAction: TextInputAction.next,
+                      textCapitalization: TextCapitalization.sentences,
+                      decoration: const InputDecoration(
+                        label: Text("Note"),
+                        hintText: "Description",
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ListTile(
+                      leading: const Icon(Icons.calendar_today),
+                      title: const Text('Transaction Date'),
+                      subtitle: Text(
+                        FinmanDateUtils.formatDate(_transactionDate),
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () async {
+                        final selectedDate = await showDatePicker(
+                          context: context,
+                          initialDate: _transactionDate,
+                          firstDate: DateTime(DateTime.now().year - 2),
+                          lastDate: DateTime.now(),
+                        );
+                        if (selectedDate != null) {
+                          setState(() {
+                            _transactionDate = selectedDate;
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () async {
+                        try {
+                          final amount = int.tryParse(_amountController.text);
+                          if (amount == null) return;
+
+                          if (_selectedCategory == null) return;
+
+                          final title = _titleController.text.trim();
+                          if (title.isEmpty) return;
+
+                          final calculatedAmount = amount * 100;
+                          if (widget.transactionModel != null) {
+                            final transaction =
+                                widget.transactionModel!.copyWith(
+                              amount: calculatedAmount,
+                              title: title,
+                              note: _noteController.text.trim(),
+                              transactionDate: _transactionDate,
+                              category: _selectedCategory,
+                            );
+
+                            await ref
+                                .read(transactionProvider.notifier)
+                                .updateTransaction(transaction);
+                          } else {
+                            final transaction = TransactionModel.create(
+                              amount: calculatedAmount,
+                              title: title,
+                              note: _noteController.text.trim(),
+                              transactionDate: _transactionDate,
+                              category: _selectedCategory!,
+                            );
+
+                            await ref
+                                .read(transactionProvider.notifier)
+                                .addTransaction(transaction);
+                          }
+
+                          if (context.mounted) context.pop();
+                        } catch (e) {
+                          debugPrint(e.toString());
+                        }
+                      },
+                      child: Text(
+                        widget.transactionModel != null ? 'Update' : 'Save',
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
         error: (error, stackTrace) => Center(child: Text(error.toString())),
         loading: () => Center(child: CircularProgressIndicator()),
       ),

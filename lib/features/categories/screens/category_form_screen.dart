@@ -40,6 +40,58 @@ class _AddCategoryScreenState extends ConsumerState<CategoryFormScreen> {
       appBar: AppBar(
         title: Text(widget.category != null ? 'Edit Category' : 'Add Category'),
         automaticallyImplyLeading: true,
+        actions: widget.category == null
+            ? null
+            : [
+                IconButton(
+                  onPressed: () async {
+                    final shouldDelete = await showAdaptiveDialog<bool>(
+                      context: context,
+                      builder: (dialogContext) {
+                        return AlertDialog.adaptive(
+                          title: const Text("Delete Category"),
+                          content: const Text(
+                            "Are you sure you want to delete this category?",
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.pop(dialogContext, false),
+                              child: const Text("Cancel"),
+                            ),
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.red,
+                              ),
+                              onPressed: () =>
+                                  Navigator.pop(dialogContext, true),
+                              child: const Text("Delete"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    if (shouldDelete == true) {
+                      await ref
+                          .read(categoriesProvider.notifier)
+                          .deleteCategory(widget.category!);
+
+                      if (!mounted) return;
+
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Category successfully deleted."),
+                          ),
+                        );
+
+                        context.pop();
+                      }
+                    }
+                  },
+                  icon: Icon(Icons.delete, color: Colors.red),
+                ),
+              ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -180,9 +232,7 @@ class _AddCategoryScreenState extends ConsumerState<CategoryFormScreen> {
                         .read(categoriesProvider.notifier)
                         .updateCategory(updatedCategory);
                   } else {
-                    await ref
-                        .read(categoriesProvider.notifier)
-                        .addCategory(
+                    await ref.read(categoriesProvider.notifier).addCategory(
                           name,
                           _selectedType,
                           _selectedIcon!.iconKey,
