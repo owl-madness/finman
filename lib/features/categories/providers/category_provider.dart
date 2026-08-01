@@ -3,19 +3,21 @@ import 'dart:async';
 import 'package:drift/drift.dart';
 import 'package:finman/core/database/app_database.dart';
 import 'package:finman/features/categories/repositories/category_repository_provider.dart';
+import 'package:finman/features/transactions/providers/transaction_provider.dart';
+import 'package:finman/features/transactions/repositories/transaction_repository_provider.dart';
 import 'package:finman/features/transactions/transaction_type.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final categoriesProvider =
     AsyncNotifierProvider<CategoriesNotifier, List<Category>>(
-      CategoriesNotifier.new,
-    );
+  CategoriesNotifier.new,
+);
 
 class CategoriesNotifier extends AsyncNotifier<List<Category>> {
   @override
   FutureOr<List<Category>> build() {
     final repository = ref.watch(categoryRepositoryProvider);
-    return repository.getCategories();
+    return repository.getUserCategories();
   }
 
   Future<void> addCategory(
@@ -23,7 +25,7 @@ class CategoriesNotifier extends AsyncNotifier<List<Category>> {
     TransactionType type,
     String icon,
     int color, {
-    bool? isDefault,
+    bool? isSystem,
   }) async {
     final repository = ref.read(categoryRepositoryProvider);
     final category = CategoriesCompanion.insert(
@@ -31,7 +33,7 @@ class CategoriesNotifier extends AsyncNotifier<List<Category>> {
       type: type,
       icon: icon,
       color: color,
-      isDefault: Value(isDefault ?? false),
+      isSystem: Value(isSystem ?? false),
     );
     await repository.addCategory(category);
     // state = const AsyncLoading();
@@ -47,6 +49,13 @@ class CategoriesNotifier extends AsyncNotifier<List<Category>> {
       color: Value(category.color),
     );
     await repository.updateCategory(category.id, updatedCategory);
+    ref.invalidateSelf();
+  }
+
+  Future<void> deleteCategory(Category category) async {
+    await ref.read(categoryRepositoryProvider).deleteCategory(category);
+
+    ref.invalidate(transactionProvider);
     ref.invalidateSelf();
   }
 }
