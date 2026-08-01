@@ -14,13 +14,8 @@ class CategoryRepository {
     return _database.getCategories();
   }
 
-  Future<int> updateCategory(
-    int id,
-    CategoriesCompanion category,
-  ) {
-    final updated = category.copyWith(
-      updatedAt: Value(DateTime.now()),
-    );
+  Future<int> updateCategory(int id, CategoriesCompanion category) {
+    final updated = category.copyWith(updatedAt: Value(DateTime.now()));
 
     return _database.updateCategory(id, updated);
   }

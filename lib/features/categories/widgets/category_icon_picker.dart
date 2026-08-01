@@ -3,8 +3,11 @@ import 'package:finman/features/categories/models/category_icon.dart';
 import 'package:flutter/material.dart';
 
 class CategoryIconPicker extends StatelessWidget {
-  const CategoryIconPicker(
-      {super.key, this.selectedIcon, this.scrollController});
+  const CategoryIconPicker({
+    super.key,
+    this.selectedIcon,
+    this.scrollController,
+  });
   final CategoryIcon? selectedIcon;
   final ScrollController? scrollController;
 
@@ -16,8 +19,9 @@ class CategoryIconPicker extends StatelessWidget {
       child: GridView.builder(
         itemCount: categoryIcons.length,
         controller: scrollController,
-        gridDelegate:
-            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+        ),
         itemBuilder: (context, index) {
           final isSelected =
               selectedIcon?.iconKey == categoryIcons[index].iconKey;
@@ -25,10 +29,11 @@ class CategoryIconPicker extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.all(15),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: selectedIcon?.iconKey == categoryIcons[index].iconKey
-                      ? colorScheme.primaryContainer
-                      : null),
+                borderRadius: BorderRadius.circular(12),
+                color: selectedIcon?.iconKey == categoryIcons[index].iconKey
+                    ? colorScheme.primaryContainer
+                    : null,
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [

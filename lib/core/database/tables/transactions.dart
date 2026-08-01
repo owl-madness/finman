@@ -8,6 +8,6 @@ class Transactions extends Table {
   TextColumn get title => text()();
   TextColumn get note => text().nullable()();
   DateTimeColumn get transactionDate => dateTime()();
-  DateTimeColumn get createdAt => dateTime()();
-  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }

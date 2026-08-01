@@ -25,11 +25,35 @@ class AppDatabase extends _$AppDatabase {
   Future<int> updateCategory(int id, CategoriesCompanion category) {
     return (update(
       categories,
-    )..where((tbl) => tbl.id.equals(id)))
-        .write(category);
+    )..where((tbl) => tbl.id.equals(id))).write(category);
   }
 
   Future<int> deleteCategory(int id) {
     return (delete(categories)..where((tbl) => tbl.id.equals(id))).go();
+  }
+
+  Future<int> addTransaction(TransactionsCompanion transaction) {
+    return into(transactions).insert(transaction);
+  }
+
+  Future<List<Transaction>> getTransactions() {
+    return select(transactions).get();
+  }
+
+  Future<int> updateTransaction(int id, TransactionsCompanion transaction) {
+    return (update(
+      transactions,
+    )..where((tbl) => tbl.id.equals(id))).write(transaction);
+  }
+
+  Future<int> deleteTransaction(int id) {
+    return (delete(transactions)..where((tbl) => tbl.id.equals(id))).go();
+  }
+
+  Future<List<TypedResult>> getTransactionsWithCategory() {
+    final query = select(transactions).join([
+      innerJoin(categories, categories.id.equalsExp(transactions.categoryId)),
+    ]);
+    return query.get();
   }
 }

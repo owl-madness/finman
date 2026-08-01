@@ -15,8 +15,6 @@ class CategoryFormScreen extends ConsumerStatefulWidget {
   const CategoryFormScreen({this.category, super.key});
   final Category? category;
 
-  static const String routePath = '/categories/add';
-
   @override
   ConsumerState<CategoryFormScreen> createState() => _AddCategoryScreenState();
 }
@@ -29,9 +27,7 @@ class _AddCategoryScreenState extends ConsumerState<CategoryFormScreen> {
 
   @override
   void initState() {
-    _nameController = TextEditingController(
-      text: widget.category?.name ?? '',
-    );
+    _nameController = TextEditingController(text: widget.category?.name ?? '');
     _selectedType = widget.category?.type ?? TransactionType.expense;
     _selectedIcon = getCategoryIcon(widget.category?.icon ?? "");
     _selectedColor = getCategoryColor(widget.category?.color);
@@ -53,6 +49,7 @@ class _AddCategoryScreenState extends ConsumerState<CategoryFormScreen> {
             const SizedBox(height: 24),
             TextFormField(
               controller: _nameController,
+              textCapitalization: TextCapitalization.sentences,
               decoration: const InputDecoration(
                 labelText: 'Category Name',
                 hintText: 'e.g. Food',
@@ -63,8 +60,10 @@ class _AddCategoryScreenState extends ConsumerState<CategoryFormScreen> {
               segments: [
                 ...TransactionType.values.map(
                   (e) => ButtonSegment(
-                      value: e, label: Text(e.name.toUpperCase())),
-                )
+                    value: e,
+                    label: Text(e.name.toUpperCase()),
+                  ),
+                ),
               ],
               selected: {_selectedType},
               onSelectionChanged: (selection) {
@@ -77,92 +76,86 @@ class _AddCategoryScreenState extends ConsumerState<CategoryFormScreen> {
 
             // icon picker
             OutlinedButton(
-                onPressed: () async {
-                  final selectedIcon = await showModalBottomSheet<CategoryIcon>(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (_) {
-                      return SizedBox(
-                        height: 420,
-                        child: CategoryIconPicker(
-                          selectedIcon: _selectedIcon,
-                        ),
-                      );
-                    },
-                  );
-                  if (selectedIcon != null) {
-                    setState(() {
-                      _selectedIcon = selectedIcon;
-                    });
-                  }
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  child: _selectedIcon == null
-                      ? Text("Click to select Icon")
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(_selectedIcon?.icon),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(_selectedIcon?.displayName ?? "")
-                          ],
-                        ),
-                )),
+              onPressed: () async {
+                final selectedIcon = await showModalBottomSheet<CategoryIcon>(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (_) {
+                    return SizedBox(
+                      height: 420,
+                      child: CategoryIconPicker(selectedIcon: _selectedIcon),
+                    );
+                  },
+                );
+                if (selectedIcon != null) {
+                  setState(() {
+                    _selectedIcon = selectedIcon;
+                  });
+                }
+              },
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 15),
+                child: _selectedIcon == null
+                    ? Text("Click to select Icon")
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(_selectedIcon?.icon),
+                          SizedBox(width: 10),
+                          Text(_selectedIcon?.displayName ?? ""),
+                        ],
+                      ),
+              ),
+            ),
             const SizedBox(height: 24),
 
             // color picker
             OutlinedButton(
-                onPressed: () async {
-                  final selectedColor =
-                      await showModalBottomSheet<CategoryColor>(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (_) {
-                      return SizedBox(
-                        height: 420,
-                        child: CategoryColorPicker(
-                          selectedColor: _selectedColor,
-                        ),
-                      );
-                    },
-                  );
-                  if (selectedColor != null) {
-                    setState(() {
-                      _selectedColor = selectedColor;
-                    });
-                  }
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  child: _selectedColor == null
-                      ? Text("Click to select Color")
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Container(color: Color(_selectedColor!.argb)),
-                            Container(
-                              height: 30,
-                              width: 30,
-                              decoration: BoxDecoration(
-                                  color: Color(_selectedColor!.argb),
-                                  shape: BoxShape.circle),
-                              // color: isSelected
-                              //     ? colorScheme.onPrimaryContainer
-                              //     : colorScheme.onSurface,
+              onPressed: () async {
+                final selectedColor = await showModalBottomSheet<CategoryColor>(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (_) {
+                    return SizedBox(
+                      height: 420,
+                      child: CategoryColorPicker(selectedColor: _selectedColor),
+                    );
+                  },
+                );
+                if (selectedColor != null) {
+                  setState(() {
+                    _selectedColor = selectedColor;
+                  });
+                }
+              },
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 15),
+                child: _selectedColor == null
+                    ? Text("Click to select Color")
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Container(color: Color(_selectedColor!.argb)),
+                          Container(
+                            height: 30,
+                            width: 30,
+                            decoration: BoxDecoration(
+                              color: Color(_selectedColor!.argb),
+                              shape: BoxShape.circle,
                             ),
+                            // color: isSelected
+                            //     ? colorScheme.onPrimaryContainer
+                            //     : colorScheme.onSurface,
+                          ),
 
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(_selectedColor?.displayName ?? "")
-                          ],
-                        ),
-                )),
+                          SizedBox(width: 10),
+                          Text(_selectedColor?.displayName ?? ""),
+                        ],
+                      ),
+              ),
+            ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () async {
@@ -187,11 +180,14 @@ class _AddCategoryScreenState extends ConsumerState<CategoryFormScreen> {
                         .read(categoriesProvider.notifier)
                         .updateCategory(updatedCategory);
                   } else {
-                    await ref.read(categoriesProvider.notifier).addCategory(
-                        name,
-                        _selectedType,
-                        _selectedIcon!.iconKey,
-                        _selectedColor!.argb);
+                    await ref
+                        .read(categoriesProvider.notifier)
+                        .addCategory(
+                          name,
+                          _selectedType,
+                          _selectedIcon!.iconKey,
+                          _selectedColor!.argb,
+                        );
                   }
                   if (context.mounted) context.pop();
                 } catch (e) {
