@@ -58,18 +58,18 @@ class $CategoriesTable extends Categories
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _isDefaultMeta = const VerificationMeta(
-    'isDefault',
+  static const VerificationMeta _isSystemMeta = const VerificationMeta(
+    'isSystem',
   );
   @override
-  late final GeneratedColumn<bool> isDefault = GeneratedColumn<bool>(
-    'is_default',
+  late final GeneratedColumn<bool> isSystem = GeneratedColumn<bool>(
+    'is_system',
     aliasedName,
     false,
     type: DriftSqlType.bool,
     requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_default" IN (0, 1))',
+      'CHECK ("is_system" IN (0, 1))',
     ),
     defaultValue: const Constant(false),
   );
@@ -104,7 +104,7 @@ class $CategoriesTable extends Categories
     type,
     icon,
     color,
-    isDefault,
+    isSystem,
     createdAt,
     updatedAt,
   ];
@@ -147,10 +147,10 @@ class $CategoriesTable extends Categories
     } else if (isInserting) {
       context.missing(_colorMeta);
     }
-    if (data.containsKey('is_default')) {
+    if (data.containsKey('is_system')) {
       context.handle(
-        _isDefaultMeta,
-        isDefault.isAcceptableOrUnknown(data['is_default']!, _isDefaultMeta),
+        _isSystemMeta,
+        isSystem.isAcceptableOrUnknown(data['is_system']!, _isSystemMeta),
       );
     }
     if (data.containsKey('created_at')) {
@@ -196,9 +196,9 @@ class $CategoriesTable extends Categories
         DriftSqlType.int,
         data['${effectivePrefix}color'],
       )!,
-      isDefault: attachedDatabase.typeMapping.read(
+      isSystem: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
-        data['${effectivePrefix}is_default'],
+        data['${effectivePrefix}is_system'],
       )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
@@ -226,7 +226,7 @@ class Category extends DataClass implements Insertable<Category> {
   final TransactionType type;
   final String icon;
   final int color;
-  final bool isDefault;
+  final bool isSystem;
   final DateTime createdAt;
   final DateTime updatedAt;
   const Category({
@@ -235,7 +235,7 @@ class Category extends DataClass implements Insertable<Category> {
     required this.type,
     required this.icon,
     required this.color,
-    required this.isDefault,
+    required this.isSystem,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -251,7 +251,7 @@ class Category extends DataClass implements Insertable<Category> {
     }
     map['icon'] = Variable<String>(icon);
     map['color'] = Variable<int>(color);
-    map['is_default'] = Variable<bool>(isDefault);
+    map['is_system'] = Variable<bool>(isSystem);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -264,7 +264,7 @@ class Category extends DataClass implements Insertable<Category> {
       type: Value(type),
       icon: Value(icon),
       color: Value(color),
-      isDefault: Value(isDefault),
+      isSystem: Value(isSystem),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -281,7 +281,7 @@ class Category extends DataClass implements Insertable<Category> {
       type: serializer.fromJson<TransactionType>(json['type']),
       icon: serializer.fromJson<String>(json['icon']),
       color: serializer.fromJson<int>(json['color']),
-      isDefault: serializer.fromJson<bool>(json['isDefault']),
+      isSystem: serializer.fromJson<bool>(json['isSystem']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -295,7 +295,7 @@ class Category extends DataClass implements Insertable<Category> {
       'type': serializer.toJson<TransactionType>(type),
       'icon': serializer.toJson<String>(icon),
       'color': serializer.toJson<int>(color),
-      'isDefault': serializer.toJson<bool>(isDefault),
+      'isSystem': serializer.toJson<bool>(isSystem),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -307,7 +307,7 @@ class Category extends DataClass implements Insertable<Category> {
     TransactionType? type,
     String? icon,
     int? color,
-    bool? isDefault,
+    bool? isSystem,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => Category(
@@ -316,7 +316,7 @@ class Category extends DataClass implements Insertable<Category> {
     type: type ?? this.type,
     icon: icon ?? this.icon,
     color: color ?? this.color,
-    isDefault: isDefault ?? this.isDefault,
+    isSystem: isSystem ?? this.isSystem,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -327,7 +327,7 @@ class Category extends DataClass implements Insertable<Category> {
       type: data.type.present ? data.type.value : this.type,
       icon: data.icon.present ? data.icon.value : this.icon,
       color: data.color.present ? data.color.value : this.color,
-      isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
+      isSystem: data.isSystem.present ? data.isSystem.value : this.isSystem,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -341,7 +341,7 @@ class Category extends DataClass implements Insertable<Category> {
           ..write('type: $type, ')
           ..write('icon: $icon, ')
           ..write('color: $color, ')
-          ..write('isDefault: $isDefault, ')
+          ..write('isSystem: $isSystem, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -350,7 +350,7 @@ class Category extends DataClass implements Insertable<Category> {
 
   @override
   int get hashCode =>
-      Object.hash(id, name, type, icon, color, isDefault, createdAt, updatedAt);
+      Object.hash(id, name, type, icon, color, isSystem, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -360,7 +360,7 @@ class Category extends DataClass implements Insertable<Category> {
           other.type == this.type &&
           other.icon == this.icon &&
           other.color == this.color &&
-          other.isDefault == this.isDefault &&
+          other.isSystem == this.isSystem &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -371,7 +371,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
   final Value<TransactionType> type;
   final Value<String> icon;
   final Value<int> color;
-  final Value<bool> isDefault;
+  final Value<bool> isSystem;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const CategoriesCompanion({
@@ -380,7 +380,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     this.type = const Value.absent(),
     this.icon = const Value.absent(),
     this.color = const Value.absent(),
-    this.isDefault = const Value.absent(),
+    this.isSystem = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -390,7 +390,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     required TransactionType type,
     required String icon,
     required int color,
-    this.isDefault = const Value.absent(),
+    this.isSystem = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : name = Value(name),
@@ -403,7 +403,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     Expression<String>? type,
     Expression<String>? icon,
     Expression<int>? color,
-    Expression<bool>? isDefault,
+    Expression<bool>? isSystem,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -413,7 +413,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
       if (type != null) 'type': type,
       if (icon != null) 'icon': icon,
       if (color != null) 'color': color,
-      if (isDefault != null) 'is_default': isDefault,
+      if (isSystem != null) 'is_system': isSystem,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -425,7 +425,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     Value<TransactionType>? type,
     Value<String>? icon,
     Value<int>? color,
-    Value<bool>? isDefault,
+    Value<bool>? isSystem,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
   }) {
@@ -435,7 +435,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
       type: type ?? this.type,
       icon: icon ?? this.icon,
       color: color ?? this.color,
-      isDefault: isDefault ?? this.isDefault,
+      isSystem: isSystem ?? this.isSystem,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -461,8 +461,8 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     if (color.present) {
       map['color'] = Variable<int>(color.value);
     }
-    if (isDefault.present) {
-      map['is_default'] = Variable<bool>(isDefault.value);
+    if (isSystem.present) {
+      map['is_system'] = Variable<bool>(isSystem.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -481,7 +481,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
           ..write('type: $type, ')
           ..write('icon: $icon, ')
           ..write('color: $color, ')
-          ..write('isDefault: $isDefault, ')
+          ..write('isSystem: $isSystem, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -1013,7 +1013,7 @@ typedef $$CategoriesTableCreateCompanionBuilder =
       required TransactionType type,
       required String icon,
       required int color,
-      Value<bool> isDefault,
+      Value<bool> isSystem,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -1024,7 +1024,7 @@ typedef $$CategoriesTableUpdateCompanionBuilder =
       Value<TransactionType> type,
       Value<String> icon,
       Value<int> color,
-      Value<bool> isDefault,
+      Value<bool> isSystem,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -1087,8 +1087,8 @@ class $$CategoriesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<bool> get isDefault => $composableBuilder(
-    column: $table.isDefault,
+  ColumnFilters<bool> get isSystem => $composableBuilder(
+    column: $table.isSystem,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1162,8 +1162,8 @@ class $$CategoriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<bool> get isDefault => $composableBuilder(
-    column: $table.isDefault,
+  ColumnOrderings<bool> get isSystem => $composableBuilder(
+    column: $table.isSystem,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1202,8 +1202,8 @@ class $$CategoriesTableAnnotationComposer
   GeneratedColumn<int> get color =>
       $composableBuilder(column: $table.color, builder: (column) => column);
 
-  GeneratedColumn<bool> get isDefault =>
-      $composableBuilder(column: $table.isDefault, builder: (column) => column);
+  GeneratedColumn<bool> get isSystem =>
+      $composableBuilder(column: $table.isSystem, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -1270,7 +1270,7 @@ class $$CategoriesTableTableManager
                 Value<TransactionType> type = const Value.absent(),
                 Value<String> icon = const Value.absent(),
                 Value<int> color = const Value.absent(),
-                Value<bool> isDefault = const Value.absent(),
+                Value<bool> isSystem = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => CategoriesCompanion(
@@ -1279,7 +1279,7 @@ class $$CategoriesTableTableManager
                 type: type,
                 icon: icon,
                 color: color,
-                isDefault: isDefault,
+                isSystem: isSystem,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -1290,7 +1290,7 @@ class $$CategoriesTableTableManager
                 required TransactionType type,
                 required String icon,
                 required int color,
-                Value<bool> isDefault = const Value.absent(),
+                Value<bool> isSystem = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => CategoriesCompanion.insert(
@@ -1299,7 +1299,7 @@ class $$CategoriesTableTableManager
                 type: type,
                 icon: icon,
                 color: color,
-                isDefault: isDefault,
+                isSystem: isSystem,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),

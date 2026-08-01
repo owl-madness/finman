@@ -23,7 +23,7 @@ class CategoriesNotifier extends AsyncNotifier<List<Category>> {
     TransactionType type,
     String icon,
     int color, {
-    bool? isDefault,
+    bool? isSystem,
   }) async {
     final repository = ref.read(categoryRepositoryProvider);
     final category = CategoriesCompanion.insert(
@@ -31,7 +31,7 @@ class CategoriesNotifier extends AsyncNotifier<List<Category>> {
       type: type,
       icon: icon,
       color: color,
-      isDefault: Value(isDefault ?? false),
+      isSystem: Value(isSystem ?? false),
     );
     await repository.addCategory(category);
     // state = const AsyncLoading();
