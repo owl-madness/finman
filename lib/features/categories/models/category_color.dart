@@ -4,10 +4,7 @@ class CategoryColor {
   final int argb;
   final String? name;
 
-  const CategoryColor({
-    required this.argb,
-    this.name,
-  });
+  const CategoryColor({required this.argb, this.name});
 
   Color get color => Color(argb);
 

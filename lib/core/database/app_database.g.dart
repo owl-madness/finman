@@ -570,7 +570,8 @@ class $TransactionsTable extends Transactions
     aliasedName,
     false,
     type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
   );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
@@ -581,7 +582,8 @@ class $TransactionsTable extends Transactions
     aliasedName,
     false,
     type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
   );
   @override
   List<GeneratedColumn> get $columns => [
@@ -655,16 +657,12 @@ class $TransactionsTable extends Transactions
         _createdAtMeta,
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
-    } else if (isInserting) {
-      context.missing(_createdAtMeta);
     }
     if (data.containsKey('updated_at')) {
       context.handle(
         _updatedAtMeta,
         updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
     }
     return context;
   }
@@ -897,14 +895,12 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     required String title,
     this.note = const Value.absent(),
     required DateTime transactionDate,
-    required DateTime createdAt,
-    required DateTime updatedAt,
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
   }) : amount = Value(amount),
        categoryId = Value(categoryId),
        title = Value(title),
-       transactionDate = Value(transactionDate),
-       createdAt = Value(createdAt),
-       updatedAt = Value(updatedAt);
+       transactionDate = Value(transactionDate);
   static Insertable<Transaction> custom({
     Expression<int>? id,
     Expression<int>? amount,
@@ -1371,8 +1367,8 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       required String title,
       Value<String?> note,
       required DateTime transactionDate,
-      required DateTime createdAt,
-      required DateTime updatedAt,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
     });
 typedef $$TransactionsTableUpdateCompanionBuilder =
     TransactionsCompanion Function({
@@ -1654,8 +1650,8 @@ class $$TransactionsTableTableManager
                 required String title,
                 Value<String?> note = const Value.absent(),
                 required DateTime transactionDate,
-                required DateTime createdAt,
-                required DateTime updatedAt,
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
               }) => TransactionsCompanion.insert(
                 id: id,
                 amount: amount,

@@ -1,5 +1,6 @@
+import 'package:finman/app/router/app_routes.dart';
+import 'package:finman/features/categories/constants/category_icons.dart';
 import 'package:finman/features/categories/providers/category_provider.dart';
-import 'package:finman/features/categories/screens/category_form_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -22,24 +23,34 @@ class CategoryListScreen extends ConsumerWidget {
             itemCount: categories.length,
             itemBuilder: (context, index) {
               final category = categories[index];
+
               return ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
+                ),
+                leading: Icon(
+                  getCategoryIcon(category.icon)?.icon,
+                  color: Color(category.color),
+                ),
                 title: Text(category.name),
+                subtitle: Text(category.type.name.toUpperCase()),
+                trailing: const Icon(Icons.chevron_right),
                 onTap: () {
-                  context.push(
-                    CategoryFormScreen.routePath,
-                    extra: category,
-                  );
+                  context.push(AppRoutes.categoryForm, extra: category);
                 },
               );
             },
           );
         },
-        error: (error, stackTrace) => Center(child: Text(error.toString())),
+        error: (error, stackTrace) => Center(
+          child: SelectableText(error.toString(), textAlign: TextAlign.center),
+        ),
         loading: () => Center(child: CircularProgressIndicator()),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.push(CategoryFormScreen.routePath);
+          context.push(AppRoutes.categoryForm);
         },
         child: const Icon(Icons.add),
       ),

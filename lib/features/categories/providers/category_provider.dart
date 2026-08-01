@@ -8,8 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final categoriesProvider =
     AsyncNotifierProvider<CategoriesNotifier, List<Category>>(
-  CategoriesNotifier.new,
-);
+      CategoriesNotifier.new,
+    );
 
 class CategoriesNotifier extends AsyncNotifier<List<Category>> {
   @override
@@ -22,14 +22,16 @@ class CategoriesNotifier extends AsyncNotifier<List<Category>> {
     String name,
     TransactionType type,
     String icon,
-    int color,
-  ) async {
+    int color, {
+    bool? isDefault,
+  }) async {
     final repository = ref.read(categoryRepositoryProvider);
     final category = CategoriesCompanion.insert(
       name: name,
       type: type,
       icon: icon,
       color: color,
+      isDefault: Value(isDefault ?? false),
     );
     await repository.addCategory(category);
     // state = const AsyncLoading();
