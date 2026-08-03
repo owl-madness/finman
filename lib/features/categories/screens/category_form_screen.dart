@@ -1,4 +1,5 @@
 import 'package:finman/core/database/app_database.dart';
+import 'package:finman/core/validators/validators.dart';
 import 'package:finman/features/categories/constants/category_colors.dart';
 import 'package:finman/features/categories/constants/category_icons.dart';
 import 'package:finman/features/categories/models/category_color.dart';
@@ -20,10 +21,15 @@ class CategoryFormScreen extends ConsumerStatefulWidget {
 }
 
 class _AddCategoryScreenState extends ConsumerState<CategoryFormScreen> {
+  final _formKey = GlobalKey<FormState>();
+  AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
+  bool _isSaving = false;
   late final TextEditingController _nameController;
   late TransactionType _selectedType;
   CategoryIcon? _selectedIcon;
   CategoryColor? _selectedColor;
+  String? _iconError;
+  String? _colorError;
 
   @override
   void initState() {
@@ -89,164 +95,238 @@ class _AddCategoryScreenState extends ConsumerState<CategoryFormScreen> {
                       }
                     }
                   },
-                  icon: Icon(Icons.delete, color: Colors.red),
+                  icon: const Icon(Icons.delete, color: Colors.red),
                 ),
               ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 24),
-            TextFormField(
-              controller: _nameController,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Category Name',
-                hintText: 'e.g. Food',
-              ),
-            ),
-            const SizedBox(height: 24),
-            SegmentedButton<TransactionType>(
-              segments: [
-                ...TransactionType.values.map(
-                  (e) => ButtonSegment(
-                    value: e,
-                    label: Text(e.name.toUpperCase()),
+      body: Form(
+        key: _formKey,
+        autovalidateMode: _autovalidateMode,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 24),
+                TextFormField(
+                  controller: _nameController,
+                  textCapitalization: TextCapitalization.sentences,
+                  validator: (value) => Validators.required(
+                    value,
+                    fieldName: 'Category name',
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'Category Name',
+                    hintText: 'e.g. Food',
                   ),
                 ),
-              ],
-              selected: {_selectedType},
-              onSelectionChanged: (selection) {
-                setState(() {
-                  _selectedType = selection.first;
-                });
-              },
-            ),
-            const SizedBox(height: 24),
-
-            // icon picker
-            OutlinedButton(
-              onPressed: () async {
-                final selectedIcon = await showModalBottomSheet<CategoryIcon>(
-                  context: context,
-                  isScrollControlled: true,
-                  builder: (_) {
-                    return SizedBox(
-                      height: 420,
-                      child: CategoryIconPicker(selectedIcon: _selectedIcon),
-                    );
-                  },
-                );
-                if (selectedIcon != null) {
-                  setState(() {
-                    _selectedIcon = selectedIcon;
-                  });
-                }
-              },
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15),
-                child: _selectedIcon == null
-                    ? Text("Click to select Icon")
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(_selectedIcon?.icon),
-                          SizedBox(width: 10),
-                          Text(_selectedIcon?.displayName ?? ""),
-                        ],
+                const SizedBox(height: 24),
+                SegmentedButton<TransactionType>(
+                  segments: [
+                    ...TransactionType.values.map(
+                      (e) => ButtonSegment(
+                        value: e,
+                        label: Text(e.name.toUpperCase()),
                       ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // color picker
-            OutlinedButton(
-              onPressed: () async {
-                final selectedColor = await showModalBottomSheet<CategoryColor>(
-                  context: context,
-                  isScrollControlled: true,
-                  builder: (_) {
-                    return SizedBox(
-                      height: 420,
-                      child: CategoryColorPicker(selectedColor: _selectedColor),
-                    );
+                    ),
+                  ],
+                  selected: {_selectedType},
+                  onSelectionChanged: (selection) {
+                    setState(() {
+                      _selectedType = selection.first;
+                    });
                   },
-                );
-                if (selectedColor != null) {
-                  setState(() {
-                    _selectedColor = selectedColor;
-                  });
-                }
-              },
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15),
-                child: _selectedColor == null
-                    ? Text("Click to select Color")
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Container(color: Color(_selectedColor!.argb)),
-                          Container(
-                            height: 30,
-                            width: 30,
-                            decoration: BoxDecoration(
-                              color: Color(_selectedColor!.argb),
-                              shape: BoxShape.circle,
-                            ),
-                            // color: isSelected
-                            //     ? colorScheme.onPrimaryContainer
-                            //     : colorScheme.onSurface,
-                          ),
+                ),
+                const SizedBox(height: 24),
 
-                          SizedBox(width: 10),
-                          Text(_selectedColor?.displayName ?? ""),
-                        ],
-                      ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () async {
-                try {
-                  debugPrint(_nameController.text);
-                  final name = _nameController.text.trim();
-
-                  if (name.isEmpty ||
-                      _selectedIcon == null ||
-                      _selectedColor == null) {
-                    return;
-                  }
-                  if (widget.category != null) {
-                    final updatedCategory = widget.category!.copyWith(
-                      name: name,
-                      type: _selectedType,
-                      icon: _selectedIcon!.iconKey,
-                      color: _selectedColor!.argb,
-                    );
-
-                    await ref
-                        .read(categoriesProvider.notifier)
-                        .updateCategory(updatedCategory);
-                  } else {
-                    await ref.read(categoriesProvider.notifier).addCategory(
-                          name,
-                          _selectedType,
-                          _selectedIcon!.iconKey,
-                          _selectedColor!.argb,
+                // icon picker
+                OutlinedButton(
+                  onPressed: () async {
+                    final selectedIcon =
+                        await showModalBottomSheet<CategoryIcon>(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (_) {
+                        return SizedBox(
+                          height: 420,
+                          child:
+                              CategoryIconPicker(selectedIcon: _selectedIcon),
                         );
-                  }
-                  if (context.mounted) context.pop();
-                } catch (e) {
-                  debugPrint(e.toString());
-                }
-              },
-              child: Text(widget.category != null ? 'Update' : 'Save'),
+                      },
+                    );
+                    if (selectedIcon != null) {
+                      setState(() {
+                        _selectedIcon = selectedIcon;
+
+                        _iconError = null;
+                      });
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    child: _selectedIcon == null
+                        ? const Text("Click to select Icon")
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(_selectedIcon?.icon),
+                              SizedBox(width: 10),
+                              Text(_selectedIcon?.displayName ?? ""),
+                            ],
+                          ),
+                  ),
+                ),
+                if (_iconError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      _iconError!,
+                      style:
+                          TextStyle(color: Theme.of(context).colorScheme.error),
+                    ),
+                  ),
+                const SizedBox(height: 24),
+
+                // color picker
+                OutlinedButton(
+                  onPressed: () async {
+                    final selectedColor =
+                        await showModalBottomSheet<CategoryColor>(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (_) {
+                        return SizedBox(
+                          height: 420,
+                          child: CategoryColorPicker(
+                              selectedColor: _selectedColor),
+                        );
+                      },
+                    );
+                    if (selectedColor != null) {
+                      setState(() {
+                        _selectedColor = selectedColor;
+                        _colorError = null;
+                      });
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    child: _selectedColor == null
+                        ? const Text("Click to select Color")
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Container(color: Color(_selectedColor!.argb)),
+                              Container(
+                                height: 30,
+                                width: 30,
+                                decoration: BoxDecoration(
+                                  color: Color(_selectedColor!.argb),
+                                  shape: BoxShape.circle,
+                                ),
+                                // color: isSelected
+                                //     ? colorScheme.onPrimaryContainer
+                                //     : colorScheme.onSurface,
+                              ),
+
+                              SizedBox(width: 10),
+                              Text(_selectedColor?.displayName ?? ""),
+                            ],
+                          ),
+                  ),
+                ),
+
+                if (_colorError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      _colorError!,
+                      style:
+                          TextStyle(color: Theme.of(context).colorScheme.error),
+                    ),
+                  ),
+
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: _isSaving
+                      ? null
+                      : () async {
+                          try {
+                            FocusScope.of(context).unfocus();
+
+                            final isFormValid =
+                                _formKey.currentState!.validate();
+                            final isIconSelected = _selectedIcon != null;
+                            final isColorSelected = _selectedColor != null;
+
+                            if (!isFormValid ||
+                                !isIconSelected ||
+                                !isColorSelected) {
+                              setState(() {
+                                _autovalidateMode =
+                                    AutovalidateMode.onUserInteraction;
+                                _iconError = isIconSelected
+                                    ? null
+                                    : 'Please select an icon';
+                                _colorError = isColorSelected
+                                    ? null
+                                    : 'Please select a color';
+                              });
+                              return;
+                            }
+
+                            setState(() {
+                              _isSaving = true;
+                            });
+
+                            final name = _nameController.text.trim();
+
+                            if (widget.category != null) {
+                              final updatedCategory = widget.category!.copyWith(
+                                name: name,
+                                type: _selectedType,
+                                icon: _selectedIcon!.iconKey,
+                                color: _selectedColor!.argb,
+                              );
+
+                              await ref
+                                  .read(categoriesProvider.notifier)
+                                  .updateCategory(updatedCategory);
+                            } else {
+                              await ref
+                                  .read(categoriesProvider.notifier)
+                                  .addCategory(
+                                    name,
+                                    _selectedType,
+                                    _selectedIcon!.iconKey,
+                                    _selectedColor!.argb,
+                                  );
+                            }
+                            if (context.mounted) context.pop();
+                          } catch (e) {
+                            debugPrint(e.toString());
+                          } finally {
+                            if (mounted) {
+                              setState(() {
+                                _isSaving = false;
+                              });
+                            }
+                          }
+                        },
+                  child: _isSaving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(widget.category != null ? 'Update' : 'Save'),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
