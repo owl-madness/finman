@@ -1,5 +1,9 @@
 import 'package:finman/core/database/app_database.dart';
 import 'package:finman/core/validators/validators.dart';
+import 'package:finman/core/widgets/finman_confirm_dialog.dart';
+import 'package:finman/core/widgets/finman_loading_button.dart';
+import 'package:finman/core/widgets/finman_snackbar.dart';
+import 'package:finman/core/widgets/finman_text_form_field.dart';
 import 'package:finman/features/categories/constants/category_colors.dart';
 import 'package:finman/features/categories/constants/category_icons.dart';
 import 'package:finman/features/categories/models/category_color.dart';
@@ -51,47 +55,38 @@ class _AddCategoryScreenState extends ConsumerState<CategoryFormScreen> {
             : [
                 IconButton(
                   onPressed: () async {
-                    final shouldDelete = await showAdaptiveDialog<bool>(
-                      context: context,
-                      builder: (dialogContext) {
-                        return AlertDialog.adaptive(
-                          title: const Text("Delete Category"),
-                          content: const Text(
-                            "Are you sure you want to delete this category?",
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () =>
-                                  Navigator.pop(dialogContext, false),
-                              child: const Text("Cancel"),
-                            ),
-                            TextButton(
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.red,
-                              ),
-                              onPressed: () =>
-                                  Navigator.pop(dialogContext, true),
-                              child: const Text("Delete"),
-                            ),
-                          ],
-                        );
-                      },
+                    final shouldDelete = await FinmanConfirmDialog.show(
+                      context,
+                      title: 'Delete Category',
+                      content: 'Are you sure you want to delete this category?',
+                      confirmText: 'Delete',
+                      isDestructive: true,
                     );
+
                     if (shouldDelete == true) {
-                      await ref
-                          .read(categoriesProvider.notifier)
-                          .deleteCategory(widget.category!);
+                      try {
+                        await ref
+                            .read(categoriesProvider.notifier)
+                            .deleteCategory(widget.category!);
 
-                      if (!mounted) return;
+                        if (!mounted) return;
 
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Category successfully deleted."),
-                          ),
-                        );
+                        if (context.mounted) {
+                          FinmanSnackbar.showSuccess(
+                            context,
+                            message: "Category successfully deleted",
+                          );
+                          context.pop();
+                        }
+                      } catch (e) {
+                        debugPrint(e.toString());
 
-                        context.pop();
+                        if (context.mounted) {
+                          FinmanSnackbar.showError(
+                            context,
+                            message: 'Failed to delete transaction.',
+                          );
+                        }
                       }
                     }
                   },
@@ -109,17 +104,13 @@ class _AddCategoryScreenState extends ConsumerState<CategoryFormScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 24),
-                TextFormField(
+                FinmanTextFormField(
                   controller: _nameController,
-                  textCapitalization: TextCapitalization.sentences,
-                  validator: (value) => Validators.required(
-                    value,
-                    fieldName: 'Category name',
-                  ),
-                  decoration: const InputDecoration(
-                    labelText: 'Category Name',
-                    hintText: 'e.g. Food',
-                  ),
+                  validator: (value) =>
+                      Validators.required(value, fieldName: 'Category name'),
+                  textCapitalization: TextCapitalization.words,
+                  labelText: 'Category Name',
+                  hintText: 'e.g. Food',
                 ),
                 const SizedBox(height: 24),
                 SegmentedButton<TransactionType>(
@@ -145,16 +136,17 @@ class _AddCategoryScreenState extends ConsumerState<CategoryFormScreen> {
                   onPressed: () async {
                     final selectedIcon =
                         await showModalBottomSheet<CategoryIcon>(
-                      context: context,
-                      isScrollControlled: true,
-                      builder: (_) {
-                        return SizedBox(
-                          height: 420,
-                          child:
-                              CategoryIconPicker(selectedIcon: _selectedIcon),
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (_) {
+                            return SizedBox(
+                              height: 420,
+                              child: CategoryIconPicker(
+                                selectedIcon: _selectedIcon,
+                              ),
+                            );
+                          },
                         );
-                      },
-                    );
                     if (selectedIcon != null) {
                       setState(() {
                         _selectedIcon = selectedIcon;
@@ -183,8 +175,9 @@ class _AddCategoryScreenState extends ConsumerState<CategoryFormScreen> {
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
                       _iconError!,
-                      style:
-                          TextStyle(color: Theme.of(context).colorScheme.error),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                   ),
                 const SizedBox(height: 24),
@@ -194,16 +187,17 @@ class _AddCategoryScreenState extends ConsumerState<CategoryFormScreen> {
                   onPressed: () async {
                     final selectedColor =
                         await showModalBottomSheet<CategoryColor>(
-                      context: context,
-                      isScrollControlled: true,
-                      builder: (_) {
-                        return SizedBox(
-                          height: 420,
-                          child: CategoryColorPicker(
-                              selectedColor: _selectedColor),
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (_) {
+                            return SizedBox(
+                              height: 420,
+                              child: CategoryColorPicker(
+                                selectedColor: _selectedColor,
+                              ),
+                            );
+                          },
                         );
-                      },
-                    );
                     if (selectedColor != null) {
                       setState(() {
                         _selectedColor = selectedColor;
@@ -244,85 +238,82 @@ class _AddCategoryScreenState extends ConsumerState<CategoryFormScreen> {
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
                       _colorError!,
-                      style:
-                          TextStyle(color: Theme.of(context).colorScheme.error),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                   ),
 
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _isSaving
-                      ? null
-                      : () async {
-                          try {
-                            FocusScope.of(context).unfocus();
+                FinmanLoadingButton(
+                  text: widget.category != null ? 'Update' : 'Save',
+                  isLoading: _isSaving,
+                  onPressed: () async {
+                    try {
+                      FocusScope.of(context).unfocus();
 
-                            final isFormValid =
-                                _formKey.currentState!.validate();
-                            final isIconSelected = _selectedIcon != null;
-                            final isColorSelected = _selectedColor != null;
+                      final isFormValid = _formKey.currentState!.validate();
+                      final isIconSelected = _selectedIcon != null;
+                      final isColorSelected = _selectedColor != null;
 
-                            if (!isFormValid ||
-                                !isIconSelected ||
-                                !isColorSelected) {
-                              setState(() {
-                                _autovalidateMode =
-                                    AutovalidateMode.onUserInteraction;
-                                _iconError = isIconSelected
-                                    ? null
-                                    : 'Please select an icon';
-                                _colorError = isColorSelected
-                                    ? null
-                                    : 'Please select a color';
-                              });
-                              return;
-                            }
+                      if (!isFormValid || !isIconSelected || !isColorSelected) {
+                        setState(() {
+                          _autovalidateMode =
+                              AutovalidateMode.onUserInteraction;
+                          _iconError = isIconSelected
+                              ? null
+                              : 'Please select an icon';
+                          _colorError = isColorSelected
+                              ? null
+                              : 'Please select a color';
+                        });
+                        return;
+                      }
 
-                            setState(() {
-                              _isSaving = true;
-                            });
+                      setState(() {
+                        _isSaving = true;
+                      });
 
-                            final name = _nameController.text.trim();
+                      final name = _nameController.text.trim();
 
-                            if (widget.category != null) {
-                              final updatedCategory = widget.category!.copyWith(
-                                name: name,
-                                type: _selectedType,
-                                icon: _selectedIcon!.iconKey,
-                                color: _selectedColor!.argb,
-                              );
+                      if (widget.category != null) {
+                        final updatedCategory = widget.category!.copyWith(
+                          name: name,
+                          type: _selectedType,
+                          icon: _selectedIcon!.iconKey,
+                          color: _selectedColor!.argb,
+                        );
 
-                              await ref
-                                  .read(categoriesProvider.notifier)
-                                  .updateCategory(updatedCategory);
-                            } else {
-                              await ref
-                                  .read(categoriesProvider.notifier)
-                                  .addCategory(
-                                    name,
-                                    _selectedType,
-                                    _selectedIcon!.iconKey,
-                                    _selectedColor!.argb,
-                                  );
-                            }
-                            if (context.mounted) context.pop();
-                          } catch (e) {
-                            debugPrint(e.toString());
-                          } finally {
-                            if (mounted) {
-                              setState(() {
-                                _isSaving = false;
-                              });
-                            }
-                          }
-                        },
-                  child: _isSaving
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(widget.category != null ? 'Update' : 'Save'),
+                        await ref
+                            .read(categoriesProvider.notifier)
+                            .updateCategory(updatedCategory);
+                      } else {
+                        await ref
+                            .read(categoriesProvider.notifier)
+                            .addCategory(
+                              name,
+                              _selectedType,
+                              _selectedIcon!.iconKey,
+                              _selectedColor!.argb,
+                            );
+                      }
+                      if (context.mounted) context.pop();
+                    } catch (e) {
+                      debugPrint(e.toString());
+                      if (context.mounted) {
+                        FinmanSnackbar.showError(
+                          context,
+                          message: 'Failed to save transaction.',
+                        );
+                      }
+                    } finally {
+                      if (mounted) {
+                        setState(() {
+                          _isSaving = false;
+                        });
+                      }
+                    }
+                  },
                 ),
               ],
             ),
