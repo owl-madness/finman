@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:finman/core/database/app_database.dart';
 import 'package:finman/features/transactions/transaction_type.dart';
-import 'package:flutter/material.dart';
 
 class CategoryRepository {
   final AppDatabase _database;
