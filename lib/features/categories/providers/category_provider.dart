@@ -4,7 +4,6 @@ import 'package:drift/drift.dart';
 import 'package:finman/core/database/app_database.dart';
 import 'package:finman/features/categories/repositories/category_repository_provider.dart';
 import 'package:finman/features/transactions/providers/transaction_provider.dart';
-import 'package:finman/features/transactions/repositories/transaction_repository_provider.dart';
 import 'package:finman/features/transactions/transaction_type.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
