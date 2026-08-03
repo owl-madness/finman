@@ -68,7 +68,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
         title: Text(
           widget.transactionModel != null
               ? 'Edit transaction'
-              : 'Add Tranasction',
+              : 'Add Transaction',
         ),
         actions: widget.transactionModel == null
             ? null
@@ -119,7 +119,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                       }
                     }
                   },
-                  icon: Icon(Icons.delete, color: Colors.red),
+                  icon: const Icon(Icons.delete, color: Colors.red),
                 ),
               ],
       ),
@@ -142,6 +142,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                       controller: _amountController,
                       keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.next,
+                      textCapitalization: TextCapitalization.none,
                       validator: Validators.amount,
                       decoration: const InputDecoration(
                         label: Text("Amount"),
@@ -151,7 +152,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                     const SizedBox(height: 24),
                     DropdownButtonFormField<Category>(
                       initialValue: _selectedCategory,
-                      hint: Text("Select category"),
+                      hint: const Text("Select category"),
                       validator: (value) {
                         if (value == null) {
                           return 'Please select a category';
@@ -222,7 +223,6 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                           ? null
                           : () async {
                               try {
-                                if (_isSaving) return;
                                 FocusScope.of(context).unfocus();
                                 if (!_formKey.currentState!.validate()) {
                                   setState(() {
@@ -231,6 +231,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                                   });
                                   return;
                                 }
+
                                 setState(() {
                                   _isSaving = true;
                                 });
@@ -239,11 +240,11 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                                     int.parse(_amountController.text);
                                 final title = _titleController.text.trim();
 
-                                final calculatedAmount = amount * 100;
+                                final amountInPaisa = amount * 100;
                                 if (widget.transactionModel != null) {
                                   final transaction =
                                       widget.transactionModel!.copyWith(
-                                    amount: calculatedAmount,
+                                    amount: amountInPaisa,
                                     title: title,
                                     note: _noteController.text.trim(),
                                     transactionDate: _transactionDate,
@@ -255,7 +256,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                                       .updateTransaction(transaction);
                                 } else {
                                   final transaction = TransactionModel.create(
-                                    amount: calculatedAmount,
+                                    amount: amountInPaisa,
                                     title: title,
                                     note: _noteController.text.trim(),
                                     transactionDate: _transactionDate,
