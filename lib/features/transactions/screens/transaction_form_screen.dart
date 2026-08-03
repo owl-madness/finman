@@ -1,6 +1,10 @@
 import 'package:finman/core/database/app_database.dart';
 import 'package:finman/core/utils/date_utils.dart';
 import 'package:finman/core/validators/validators.dart';
+import 'package:finman/core/widgets/finman_confirm_dialog.dart';
+import 'package:finman/core/widgets/finman_loading_button.dart';
+import 'package:finman/core/widgets/finman_snackbar.dart';
+import 'package:finman/core/widgets/finman_text_form_field.dart';
 import 'package:finman/features/categories/providers/category_provider.dart';
 import 'package:finman/features/transactions/models/transaction_model.dart';
 import 'package:finman/features/transactions/providers/transaction_provider.dart';
@@ -75,47 +79,39 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
             : [
                 IconButton(
                   onPressed: () async {
-                    final shouldDelete = await showAdaptiveDialog<bool>(
-                      context: context,
-                      builder: (dialogContext) {
-                        return AlertDialog.adaptive(
-                          title: const Text("Delete Transaction"),
-                          content: const Text(
-                            "Are you sure you want to delete this transaction?",
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () =>
-                                  Navigator.pop(dialogContext, false),
-                              child: const Text("Cancel"),
-                            ),
-                            TextButton(
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.red,
-                              ),
-                              onPressed: () =>
-                                  Navigator.pop(dialogContext, true),
-                              child: const Text("Delete"),
-                            ),
-                          ],
-                        );
-                      },
+                    final shouldDelete = await FinmanConfirmDialog.show(
+                      context,
+                      title: 'Delete Transaction',
+                      content:
+                          'Are you sure you want to delete this transaction?',
+                      confirmText: 'Delete',
+                      isDestructive: true,
                     );
+
                     if (shouldDelete == true) {
-                      await ref
-                          .read(transactionProvider.notifier)
-                          .deleteTransaction(widget.transactionModel!.id!);
+                      try {
+                        await ref
+                            .read(transactionProvider.notifier)
+                            .deleteTransaction(widget.transactionModel!.id!);
 
-                      if (!mounted) return;
+                        if (!mounted) return;
 
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Transaction successfully deleted."),
-                          ),
-                        );
+                        if (context.mounted) {
+                          FinmanSnackbar.showSuccess(
+                            context,
+                            message: "Transaction successfully deleted.",
+                          );
+                          context.pop();
+                        }
+                      } catch (e) {
+                        debugPrint(e.toString());
 
-                        context.pop();
+                        if (context.mounted) {
+                          FinmanSnackbar.showError(
+                            context,
+                            message: 'Failed to delete transaction.',
+                          );
+                        }
                       }
                     }
                   },
@@ -138,16 +134,13 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                 child: Column(
                   children: [
                     const SizedBox(height: 24),
-                    TextFormField(
+                    FinmanTextFormField(
                       controller: _amountController,
                       keyboardType: TextInputType.number,
-                      textInputAction: TextInputAction.next,
-                      textCapitalization: TextCapitalization.none,
                       validator: Validators.amount,
-                      decoration: const InputDecoration(
-                        label: Text("Amount"),
-                        hintText: "(in rupees) Eg. 100, 200",
-                      ),
+                      textInputAction: TextInputAction.next,
+                      labelText: 'Amount',
+                      hintText: '(in rupees) Eg. 100, 200',
                     ),
                     const SizedBox(height: 24),
                     DropdownButtonFormField<Category>(
@@ -174,26 +167,22 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                       },
                     ),
                     const SizedBox(height: 24),
-                    TextFormField(
+                    FinmanTextFormField(
                       controller: _titleController,
+                      validator: (value) =>
+                          Validators.required(value, fieldName: 'Title'),
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.sentences,
-                      validator: (value) =>
-                          Validators.required(value, fieldName: "Title"),
-                      decoration: const InputDecoration(
-                        label: Text("Title"),
-                        hintText: "Eg. Lunch from KFC",
-                      ),
+                      labelText: 'Title',
+                      hintText: 'Eg. Lunch from KFC',
                     ),
                     const SizedBox(height: 24),
-                    TextFormField(
+                    FinmanTextFormField(
                       controller: _noteController,
-                      textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.sentences,
-                      decoration: const InputDecoration(
-                        label: Text("Note"),
-                        hintText: "Description",
-                      ),
+                      textInputAction: TextInputAction.next,
+                      labelText: 'Note',
+                      hintText: 'Description',
                     ),
                     const SizedBox(height: 24),
                     ListTile(
@@ -218,79 +207,74 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                       },
                     ),
                     const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: _isSaving
-                          ? null
-                          : () async {
-                              try {
-                                FocusScope.of(context).unfocus();
-                                if (!_formKey.currentState!.validate()) {
-                                  setState(() {
-                                    _autovalidateMode =
-                                        AutovalidateMode.onUserInteraction;
-                                  });
-                                  return;
-                                }
+                    FinmanLoadingButton(
+                      text: widget.transactionModel != null ? 'Update' : 'Save',
+                      isLoading: _isSaving,
+                      onPressed: () async {
+                        try {
+                          FocusScope.of(context).unfocus();
+                          if (!_formKey.currentState!.validate()) {
+                            setState(() {
+                              _autovalidateMode =
+                                  AutovalidateMode.onUserInteraction;
+                            });
+                            return;
+                          }
 
-                                setState(() {
-                                  _isSaving = true;
-                                });
+                          setState(() {
+                            _isSaving = true;
+                          });
 
-                                final amount =
-                                    int.parse(_amountController.text);
-                                final title = _titleController.text.trim();
+                          final amount = int.parse(_amountController.text);
+                          final title = _titleController.text.trim();
 
-                                final amountInPaisa = amount * 100;
-                                if (widget.transactionModel != null) {
-                                  final transaction =
-                                      widget.transactionModel!.copyWith(
-                                    amount: amountInPaisa,
-                                    title: title,
-                                    note: _noteController.text.trim(),
-                                    transactionDate: _transactionDate,
-                                    category: _selectedCategory,
-                                  );
+                          final amountInPaisa = amount * 100;
+                          if (widget.transactionModel != null) {
+                            final transaction = widget.transactionModel!
+                                .copyWith(
+                                  amount: amountInPaisa,
+                                  title: title,
+                                  note: _noteController.text.trim(),
+                                  transactionDate: _transactionDate,
+                                  category: _selectedCategory,
+                                );
 
-                                  await ref
-                                      .read(transactionProvider.notifier)
-                                      .updateTransaction(transaction);
-                                } else {
-                                  final transaction = TransactionModel.create(
-                                    amount: amountInPaisa,
-                                    title: title,
-                                    note: _noteController.text.trim(),
-                                    transactionDate: _transactionDate,
-                                    category: _selectedCategory!,
-                                  );
+                            await ref
+                                .read(transactionProvider.notifier)
+                                .updateTransaction(transaction);
+                          } else {
+                            final transaction = TransactionModel.create(
+                              amount: amountInPaisa,
+                              title: title,
+                              note: _noteController.text.trim(),
+                              transactionDate: _transactionDate,
+                              category: _selectedCategory!,
+                            );
 
-                                  await ref
-                                      .read(transactionProvider.notifier)
-                                      .addTransaction(transaction);
-                                }
+                            await ref
+                                .read(transactionProvider.notifier)
+                                .addTransaction(transaction);
+                          }
 
-                                if (context.mounted) context.pop();
-                              } catch (e) {
-                                debugPrint(e.toString());
-                              } finally {
-                                if (mounted) {
-                                  setState(() {
-                                    _isSaving = false;
-                                  });
-                                }
-                              }
-                            },
-                      child: _isSaving
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Text(
-                              widget.transactionModel != null
-                                  ? 'Update'
-                                  : 'Save',
-                            ),
+                          if (context.mounted) context.pop();
+                        } catch (e) {
+                          debugPrint(e.toString());
+                          if (context.mounted) {
+                            FinmanSnackbar.showError(
+                              context,
+                              message: 'Failed to save transaction.',
+                            );
+                          }
+                        } finally {
+                          if (mounted) {
+                            setState(() {
+                              _isSaving = false;
+                            });
+                          }
+                        }
+                      },
                     ),
+
                     const SizedBox(height: 24),
                   ],
                 ),
