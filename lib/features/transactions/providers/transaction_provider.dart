@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:finman/features/transactions/models/transaction_model.dart';
-import 'package:finman/features/transactions/repositories/transaction_repository_provider.dart';
+import 'package:finman/features/transactions/providers/transaction_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final transactionProvider =

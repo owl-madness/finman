@@ -2,7 +2,7 @@ import 'package:finman/app/router/app_routes.dart';
 import 'package:finman/core/database/app_database.dart';
 import 'package:finman/features/categories/screens/category_form_screen.dart';
 import 'package:finman/features/categories/screens/category_list_screen.dart';
-import 'package:finman/features/dashboard/dashboard_screen.dart';
+import 'package:finman/features/dashboard/screens/dashboard_screen.dart';
 import 'package:finman/features/transactions/models/transaction_model.dart';
 import 'package:finman/features/transactions/screens/transaction_form_screen.dart';
 import 'package:finman/features/transactions/screens/transaction_list_screen.dart';

@@ -93,10 +93,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<List<TypedResult>> getTransactionsWithCategory() {
-    final query = select(transactions).join([
-      innerJoin(categories, categories.id.equalsExp(transactions.categoryId)),
-    ]);
-    return query.get();
+    return _transactionWithCategoryQuery().get();
   }
 
   Future<int> updateTransactionsCategory({
@@ -126,5 +123,41 @@ class AppDatabase extends _$AppDatabase {
 
       await deleteCategory(category.id);
     });
+  }
+
+  // Dashboard
+  JoinedSelectStatement<HasResultSet, dynamic> _transactionWithCategoryQuery() {
+    return select(transactions).join([
+      innerJoin(categories, categories.id.equalsExp(transactions.categoryId)),
+    ]);
+  }
+
+  Future<int> getTotalIncome() async {
+    final query = _transactionWithCategoryQuery()
+      ..where(categories.type.equalsValue(TransactionType.income));
+    final rows = await query.get();
+    return rows.fold<int>(
+      0,
+      (sum, row) => sum + row.readTable(transactions).amount,
+    );
+  }
+
+  Future<int> getTotalExpense() async {
+    final query = _transactionWithCategoryQuery()
+      ..where(categories.type.equalsValue(TransactionType.expense));
+    final rows = await query.get();
+    return rows.fold<int>(
+      0,
+      (sum, row) => sum + row.readTable(transactions).amount,
+    );
+  }
+
+  Future<List<TypedResult>> getRecentTransactions({int limit = 5}) {
+    final query = _transactionWithCategoryQuery()
+      ..orderBy([
+        OrderingTerm.desc(transactions.transactionDate),
+      ])
+      ..limit(limit);
+    return query.get();
   }
 }
