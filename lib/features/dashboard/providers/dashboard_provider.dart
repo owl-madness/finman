@@ -6,8 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final dashboardProvider =
     AsyncNotifierProvider<DashboardNotifier, DashboardSummary>(
-  DashboardNotifier.new,
-);
+      DashboardNotifier.new,
+    );
 
 class DashboardNotifier extends AsyncNotifier<DashboardSummary> {
   @override

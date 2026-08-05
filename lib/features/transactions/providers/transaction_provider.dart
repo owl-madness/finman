@@ -7,8 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final transactionProvider =
     AsyncNotifierProvider<TransactionNotifier, List<TransactionModel>>(
-  TransactionNotifier.new,
-);
+      TransactionNotifier.new,
+    );
 
 class TransactionNotifier extends AsyncNotifier<List<TransactionModel>> {
   @override

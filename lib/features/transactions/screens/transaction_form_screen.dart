@@ -137,12 +137,11 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                     const SizedBox(height: 24),
                     FinmanTextFormField(
                       controller: _amountController,
-                      keyboardType:
-                          TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       validator: Validators.amount,
-                      inputFormatters: [
-                        AmountInputFormatter.decimal(),
-                      ],
+                      inputFormatters: [AmountInputFormatter.decimal()],
                       textInputAction: TextInputAction.next,
                       labelText: 'Amount',
                       hintText: '(in rupees) Eg. 100, 200',
@@ -230,20 +229,21 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                             _isSaving = true;
                           });
 
-                          final amount =
-                              double.parse(_amountController.text.trim());
+                          final amount = double.parse(
+                            _amountController.text.trim(),
+                          );
                           final title = _titleController.text.trim();
 
                           final amountInPaisa = (amount * 100).round();
                           if (widget.transactionModel != null) {
-                            final transaction =
-                                widget.transactionModel!.copyWith(
-                              amount: amountInPaisa,
-                              title: title,
-                              note: _noteController.text.trim(),
-                              transactionDate: _transactionDate,
-                              category: _selectedCategory,
-                            );
+                            final transaction = widget.transactionModel!
+                                .copyWith(
+                                  amount: amountInPaisa,
+                                  title: title,
+                                  note: _noteController.text.trim(),
+                                  transactionDate: _transactionDate,
+                                  category: _selectedCategory,
+                                );
 
                             await ref
                                 .read(transactionProvider.notifier)

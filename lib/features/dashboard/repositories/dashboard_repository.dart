@@ -16,24 +16,23 @@ class DashboardRepository {
   }
 
   Future<List<TransactionModel>> getRecentTransactions({int limit = 5}) async {
-    final transactionWithCategory =
-        await _database.getRecentTransactions(limit: limit);
-    return transactionWithCategory.map(
-      (e) {
-        final transactionRow = e.readTable(_database.transactions);
-        final categoryRow = e.readTable(_database.categories);
-        return TransactionModel(
-          id: transactionRow.id,
-          amount: transactionRow.amount,
-          title: transactionRow.title,
-          transactionDate: transactionRow.transactionDate,
-          note: transactionRow.note,
-          createdAt: transactionRow.createdAt,
-          updatedAt: transactionRow.updatedAt,
-          category: categoryRow,
-        );
-      },
-    ).toList();
+    final transactionWithCategory = await _database.getRecentTransactions(
+      limit: limit,
+    );
+    return transactionWithCategory.map((e) {
+      final transactionRow = e.readTable(_database.transactions);
+      final categoryRow = e.readTable(_database.categories);
+      return TransactionModel(
+        id: transactionRow.id,
+        amount: transactionRow.amount,
+        title: transactionRow.title,
+        transactionDate: transactionRow.transactionDate,
+        note: transactionRow.note,
+        createdAt: transactionRow.createdAt,
+        updatedAt: transactionRow.updatedAt,
+        category: categoryRow,
+      );
+    }).toList();
   }
 
   Future<DashboardSummary> getDashboardSummary({int limit = 5}) async {

@@ -17,10 +17,7 @@ const categoryIcons = [
   // ),
 
   // Food & Dining
-  CategoryIcon(
-    iconKey: 'restaurant',
-    icon: Icons.restaurant,
-  ),
+  CategoryIcon(iconKey: 'restaurant', icon: Icons.restaurant),
   CategoryIcon(
     iconKey: 'fastfood',
     iconName: 'Fast Food',
@@ -92,26 +89,14 @@ const categoryIcons = [
   ),
 
   // Housing & Utilities
-  CategoryIcon(
-    iconKey: 'home',
-    iconName: 'Rent & Housing',
-    icon: Icons.home,
-  ),
-  CategoryIcon(
-    iconKey: 'bolt',
-    iconName: 'Electricity',
-    icon: Icons.bolt,
-  ),
+  CategoryIcon(iconKey: 'home', iconName: 'Rent & Housing', icon: Icons.home),
+  CategoryIcon(iconKey: 'bolt', iconName: 'Electricity', icon: Icons.bolt),
   CategoryIcon(
     iconKey: 'water_drop',
     iconName: 'Water',
     icon: Icons.water_drop,
   ),
-  CategoryIcon(
-    iconKey: 'wifi',
-    iconName: 'Internet',
-    icon: Icons.wifi,
-  ),
+  CategoryIcon(iconKey: 'wifi', iconName: 'Internet', icon: Icons.wifi),
   CategoryIcon(
     iconKey: 'phone_android',
     iconName: 'Mobile & Phone',
@@ -122,11 +107,7 @@ const categoryIcons = [
     iconName: 'Maintenance & Repairs',
     icon: Icons.build,
   ),
-  CategoryIcon(
-    iconKey: 'receipt',
-    iconName: 'Bills',
-    icon: Icons.receipt,
-  ),
+  CategoryIcon(iconKey: 'receipt', iconName: 'Bills', icon: Icons.receipt),
 
   // Entertainment & Leisure
   CategoryIcon(
@@ -168,16 +149,8 @@ const categoryIcons = [
   ),
 
   // Education & Work
-  CategoryIcon(
-    iconKey: 'school',
-    iconName: 'Education',
-    icon: Icons.school,
-  ),
-  CategoryIcon(
-    iconKey: 'work',
-    iconName: 'Salary & Income',
-    icon: Icons.work,
-  ),
+  CategoryIcon(iconKey: 'school', iconName: 'Education', icon: Icons.school),
+  CategoryIcon(iconKey: 'work', iconName: 'Salary & Income', icon: Icons.work),
   CategoryIcon(
     iconKey: 'laptop',
     iconName: 'Electronics & Tech',
@@ -205,11 +178,7 @@ const categoryIcons = [
     iconName: 'Investments',
     icon: Icons.trending_up,
   ),
-  CategoryIcon(
-    iconKey: 'pets',
-    iconName: 'Pets',
-    icon: Icons.pets,
-  ),
+  CategoryIcon(iconKey: 'pets', iconName: 'Pets', icon: Icons.pets),
   CategoryIcon(
     iconKey: 'more_horiz',
     iconName: 'Other',

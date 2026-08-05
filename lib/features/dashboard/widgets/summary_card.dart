@@ -24,17 +24,14 @@ class SummaryCard extends StatelessWidget {
               children: [
                 Icon(icon),
                 const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                Text(title, style: Theme.of(context).textTheme.titleMedium),
               ],
             ),
             const SizedBox(height: 16),
             Text(
               CurrencyUtils.format(amount),
               style: Theme.of(context).textTheme.titleLarge,
-            )
+            ),
           ],
         ),
       ),

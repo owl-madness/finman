@@ -24,8 +24,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Dashboard",
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          "Dashboard",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         elevation: 0,
       ),
       body: dashboardAsync.when(
@@ -52,11 +54,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color:
-                            theme.colorScheme.primary.withValues(alpha: 0.25),
+                        color: theme.colorScheme.primary.withValues(
+                          alpha: 0.25,
+                        ),
                         blurRadius: 12,
                         offset: const Offset(0, 6),
-                      )
+                      ),
                     ],
                   ),
                   child: Column(
@@ -65,8 +68,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       Text(
                         "Current Balance",
                         style: theme.textTheme.labelLarge?.copyWith(
-                          color: theme.colorScheme.onPrimary
-                              .withValues(alpha: 0.8),
+                          color: theme.colorScheme.onPrimary.withValues(
+                            alpha: 0.8,
+                          ),
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -90,7 +94,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       child: _SummaryCard(
                         title: "Income",
                         amount: FinmanStringUtils.formatCurrency(
-                            summary.totalIncome),
+                          summary.totalIncome,
+                        ),
                         icon: Icons.arrow_downward_rounded,
                         accentColor: Colors.green,
                       ),
@@ -100,7 +105,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       child: _SummaryCard(
                         title: "Expense",
                         amount: FinmanStringUtils.formatCurrency(
-                            summary.totalExpense),
+                          summary.totalExpense,
+                        ),
                         icon: Icons.arrow_upward_rounded,
                         accentColor: Colors.redAccent,
                       ),
@@ -147,8 +153,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                       side: BorderSide(
-                        color: theme.colorScheme.outlineVariant
-                            .withValues(alpha: 0.5),
+                        color: theme.colorScheme.outlineVariant.withValues(
+                          alpha: 0.5,
+                        ),
                       ),
                     ),
                     child: ListView.separated(
@@ -159,23 +166,29 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         height: 1,
                         indent: 16,
                         endIndent: 16,
-                        color: theme.colorScheme.outlineVariant
-                            .withValues(alpha: 0.3),
+                        color: theme.colorScheme.outlineVariant.withValues(
+                          alpha: 0.3,
+                        ),
                       ),
                       itemBuilder: (context, index) {
                         final tx = summary.recentTransactions[index];
-                        final categoryIcon =
-                            getCategoryIcon(tx.category.icon)?.icon;
+                        final categoryIcon = getCategoryIcon(
+                          tx.category.icon,
+                        )?.icon;
 
                         return ListTile(
                           contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 4),
+                            horizontal: 16,
+                            vertical: 4,
+                          ),
                           leading: CircleAvatar(
                             backgroundColor: theme.colorScheme.primaryContainer,
                             foregroundColor:
                                 theme.colorScheme.onPrimaryContainer,
-                            child: Icon(categoryIcon ?? Icons.receipt_long,
-                                size: 20),
+                            child: Icon(
+                              categoryIcon ?? Icons.receipt_long,
+                              size: 20,
+                            ),
                           ),
                           title: Text(
                             tx.title,
@@ -198,8 +211,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         error: (error, stackTrace) => Center(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
-            child:
-                SelectableText(error.toString(), textAlign: TextAlign.center),
+            child: SelectableText(
+              error.toString(),
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),

@@ -82,7 +82,6 @@ const defaultCategories = [
   //   icon: 'local_hospital',
   //   color: 0xFF26A69A, // Teal
   // ),
-
   DefaultCategory(
     name: 'Education',
     type: TransactionType.expense,

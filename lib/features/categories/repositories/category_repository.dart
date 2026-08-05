@@ -30,8 +30,6 @@ class CategoryRepository {
   }
 
   Future<void> deleteCategory(Category category) {
-    return _database.deleteCategoryAndReassignTransactions(
-      category: category,
-    );
+    return _database.deleteCategoryAndReassignTransactions(category: category);
   }
 }

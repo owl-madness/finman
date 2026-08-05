@@ -11,10 +11,7 @@ class EmptyTransactions extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              '📄',
-              style: Theme.of(context).textTheme.displayMedium,
-            ),
+            Text('📄', style: Theme.of(context).textTheme.displayMedium),
             const SizedBox(height: 12),
             Text(
               'No transactions yet',

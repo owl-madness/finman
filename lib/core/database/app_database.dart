@@ -16,29 +16,27 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (m) async {
-          await m.createAll();
-          await _seedDefaultCategories();
-        },
-      );
+    onCreate: (m) async {
+      await m.createAll();
+      await _seedDefaultCategories();
+    },
+  );
 
   Future<void> _seedDefaultCategories() async {
-    await batch(
-      (batch) {
-        batch.insertAll(
-          categories,
-          defaultCategories.map(
-            (category) => CategoriesCompanion.insert(
-              name: category.name,
-              type: category.type,
-              icon: category.icon,
-              color: category.color,
-              isSystem: Value(category.isSystem),
-            ),
+    await batch((batch) {
+      batch.insertAll(
+        categories,
+        defaultCategories.map(
+          (category) => CategoriesCompanion.insert(
+            name: category.name,
+            type: category.type,
+            icon: category.icon,
+            color: category.color,
+            isSystem: Value(category.isSystem),
           ),
-        );
-      },
-    );
+        ),
+      );
+    });
   }
 
   // Categories
@@ -51,8 +49,9 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<List<Category>> getUserCategories() {
-    return (select(categories)..where((tbl) => tbl.isSystem.equals(false)))
-        .get();
+    return (select(
+      categories,
+    )..where((tbl) => tbl.isSystem.equals(false))).get();
   }
 
   Future<Category> getSystemCategory(TransactionType type) {
@@ -65,8 +64,7 @@ class AppDatabase extends _$AppDatabase {
   Future<int> updateCategory(int id, CategoriesCompanion category) {
     return (update(
       categories,
-    )..where((tbl) => tbl.id.equals(id)))
-        .write(category);
+    )..where((tbl) => tbl.id.equals(id))).write(category);
   }
 
   Future<int> deleteCategory(int id) {
@@ -84,8 +82,7 @@ class AppDatabase extends _$AppDatabase {
   Future<int> updateTransaction(int id, TransactionsCompanion transaction) {
     return (update(
       transactions,
-    )..where((tbl) => tbl.id.equals(id)))
-        .write(transaction);
+    )..where((tbl) => tbl.id.equals(id))).write(transaction);
   }
 
   Future<int> deleteTransaction(int id) {
@@ -100,9 +97,9 @@ class AppDatabase extends _$AppDatabase {
     required int fromCategoryId,
     required int toCategoryId,
   }) {
-    return (update(transactions)
-          ..where((tbl) => tbl.categoryId.equals(fromCategoryId)))
-        .write(
+    return (update(
+      transactions,
+    )..where((tbl) => tbl.categoryId.equals(fromCategoryId))).write(
       TransactionsCompanion(
         categoryId: Value(toCategoryId),
         updatedAt: Value(DateTime.now()),
@@ -129,11 +126,10 @@ class AppDatabase extends _$AppDatabase {
   JoinedSelectStatement<HasResultSet, dynamic> _transactionWithCategoryQuery() {
     return select(transactions).join([
       innerJoin(categories, categories.id.equalsExp(transactions.categoryId)),
-    ])
-      ..orderBy([
-        OrderingTerm.desc(transactions.transactionDate),
-        OrderingTerm.desc(transactions.createdAt),
-      ]);
+    ])..orderBy([
+      OrderingTerm.desc(transactions.transactionDate),
+      OrderingTerm.desc(transactions.createdAt),
+    ]);
   }
 
   Future<int> getTotalIncome() async {

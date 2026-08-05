@@ -6,8 +6,11 @@ import 'package:finman/features/transactions/transaction_type.dart';
 import 'package:flutter/material.dart';
 
 class RecentTransactionTile extends StatelessWidget {
-  const RecentTransactionTile(
-      {super.key, required this.transaction, this.onTap});
+  const RecentTransactionTile({
+    super.key,
+    required this.transaction,
+    this.onTap,
+  });
   final TransactionModel transaction;
   final void Function()? onTap;
 
@@ -36,10 +39,10 @@ class RecentTransactionTile extends StatelessWidget {
         CurrencyUtils.format(transaction.amount),
         textAlign: TextAlign.end,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: transaction.category.type == TransactionType.income
-                  ? Colors.green
-                  : Colors.red,
-            ),
+          color: transaction.category.type == TransactionType.income
+              ? Colors.green
+              : Colors.red,
+        ),
       ),
     );
   }
