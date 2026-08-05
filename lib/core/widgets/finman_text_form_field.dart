@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class FinmanTextFormField extends StatelessWidget {
   const FinmanTextFormField({
@@ -14,6 +15,7 @@ class FinmanTextFormField extends StatelessWidget {
     this.labelText,
     this.hintText,
     this.autofillHints,
+    this.inputFormatters,
     this.onFieldSubmitted,
   });
 
@@ -28,6 +30,7 @@ class FinmanTextFormField extends StatelessWidget {
   final String? labelText;
   final String? hintText;
   final Iterable<String>? autofillHints;
+  final List<TextInputFormatter>? inputFormatters;
   final ValueChanged<String>? onFieldSubmitted;
 
   @override
@@ -42,6 +45,7 @@ class FinmanTextFormField extends StatelessWidget {
       readOnly: readOnly,
       onTap: onTap,
       autofillHints: autofillHints,
+      inputFormatters: inputFormatters,
       decoration: InputDecoration(labelText: labelText, hintText: hintText),
       onFieldSubmitted: onFieldSubmitted,
     );

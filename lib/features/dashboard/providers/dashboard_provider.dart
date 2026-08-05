@@ -6,12 +6,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final dashboardProvider =
     AsyncNotifierProvider<DashboardNotifier, DashboardSummary>(
-  DashboardNotifier.new,
-);
+      DashboardNotifier.new,
+    );
 
 class DashboardNotifier extends AsyncNotifier<DashboardSummary> {
   @override
   FutureOr<DashboardSummary> build() {
     return ref.watch(dashboardRepositoryProvider).getDashboardSummary();
+  }
+
+  Future<void> refresh() async {
+    ref.invalidateSelf();
+    await future;
   }
 }
