@@ -129,7 +129,11 @@ class AppDatabase extends _$AppDatabase {
   JoinedSelectStatement<HasResultSet, dynamic> _transactionWithCategoryQuery() {
     return select(transactions).join([
       innerJoin(categories, categories.id.equalsExp(transactions.categoryId)),
-    ]);
+    ])
+      ..orderBy([
+        OrderingTerm.desc(transactions.transactionDate),
+        OrderingTerm.desc(transactions.createdAt),
+      ]);
   }
 
   Future<int> getTotalIncome() async {
@@ -153,11 +157,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<List<TypedResult>> getRecentTransactions({int limit = 5}) {
-    final query = _transactionWithCategoryQuery()
-      ..orderBy([
-        OrderingTerm.desc(transactions.transactionDate),
-      ])
-      ..limit(limit);
+    final query = _transactionWithCategoryQuery()..limit(limit);
     return query.get();
   }
 }
