@@ -14,4 +14,9 @@ class DashboardNotifier extends AsyncNotifier<DashboardSummary> {
   FutureOr<DashboardSummary> build() {
     return ref.watch(dashboardRepositoryProvider).getDashboardSummary();
   }
+
+  Future<void> refresh() async {
+    ref.invalidateSelf();
+    await future;
+  }
 }

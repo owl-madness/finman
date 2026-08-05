@@ -16,8 +16,10 @@ class RecentTransactionTile extends StatelessWidget {
     return ListTile(
       onTap: onTap,
       leading: CircleAvatar(
+        backgroundColor: Color(transaction.category.color),
         child: Icon(
           getCategoryIcon(transaction.category.icon)?.icon,
+          color: Colors.white,
         ),
       ),
       title: Text(

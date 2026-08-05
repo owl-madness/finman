@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:drift/drift.dart';
 import 'package:finman/core/database/app_database.dart';
 import 'package:finman/features/categories/providers/category_repository_provider.dart';
+import 'package:finman/features/dashboard/providers/dashboard_provider.dart';
 import 'package:finman/features/transactions/providers/transaction_provider.dart';
 import 'package:finman/features/transactions/transaction_type.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,12 +50,15 @@ class CategoriesNotifier extends AsyncNotifier<List<Category>> {
     );
     await repository.updateCategory(category.id, updatedCategory);
     ref.invalidateSelf();
+    ref.invalidate(transactionProvider);
+    ref.invalidate(dashboardProvider);
   }
 
   Future<void> deleteCategory(Category category) async {
     await ref.read(categoryRepositoryProvider).deleteCategory(category);
 
-    ref.invalidate(transactionProvider);
     ref.invalidateSelf();
+    ref.invalidate(transactionProvider);
+    ref.invalidate(dashboardProvider);
   }
 }

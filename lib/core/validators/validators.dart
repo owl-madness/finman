@@ -17,7 +17,7 @@ class Validators {
       return 'Amount is required';
     }
 
-    final amount = int.tryParse(value);
+    final amount = double.tryParse(value.trim());
 
     if (amount == null || amount <= 0) {
       return 'Enter a valid amount';

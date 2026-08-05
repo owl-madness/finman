@@ -34,7 +34,11 @@ class TransactionListScreen extends ConsumerWidget {
                   getCategoryIcon(transaction.category.icon)?.icon,
                   color: Color(transaction.category.color),
                 ),
-                title: Text(FinmanStringUtils.capitalise(transaction.title)),
+                title: Text(
+                  FinmanStringUtils.capitalise(transaction.title),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 subtitle: Text(
                   "${transaction.category.name} • ${core.DateUtils.formatDate(transaction.transactionDate)}",
                 ),

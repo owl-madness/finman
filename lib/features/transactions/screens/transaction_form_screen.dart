@@ -1,4 +1,5 @@
 import 'package:finman/core/database/app_database.dart';
+import 'package:finman/core/formatters/amount_input_formatter.dart';
 import 'package:finman/core/utils/date_utils.dart' as core;
 import 'package:finman/core/validators/validators.dart';
 import 'package:finman/core/widgets/finman_confirm_dialog.dart';
@@ -39,7 +40,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
     _selectedCategory = widget.transactionModel?.category;
     _amountController = TextEditingController(
       text: widget.transactionModel != null
-          ? (widget.transactionModel!.amount ~/ 100).toString()
+          ? (widget.transactionModel!.amount / 100).toStringAsFixed(2)
           : "",
     );
     _titleController = TextEditingController(
@@ -136,8 +137,12 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                     const SizedBox(height: 24),
                     FinmanTextFormField(
                       controller: _amountController,
-                      keyboardType: TextInputType.number,
+                      keyboardType:
+                          TextInputType.numberWithOptions(decimal: true),
                       validator: Validators.amount,
+                      inputFormatters: [
+                        AmountInputFormatter.decimal(),
+                      ],
                       textInputAction: TextInputAction.next,
                       labelText: 'Amount',
                       hintText: '(in rupees) Eg. 100, 200',
@@ -225,10 +230,11 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                             _isSaving = true;
                           });
 
-                          final amount = int.parse(_amountController.text);
+                          final amount =
+                              double.parse(_amountController.text.trim());
                           final title = _titleController.text.trim();
 
-                          final amountInPaisa = amount * 100;
+                          final amountInPaisa = (amount * 100).round();
                           if (widget.transactionModel != null) {
                             final transaction =
                                 widget.transactionModel!.copyWith(

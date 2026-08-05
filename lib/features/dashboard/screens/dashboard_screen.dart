@@ -2,6 +2,7 @@ import 'package:finman/app/router/app_routes.dart';
 
 import 'package:finman/features/dashboard/providers/dashboard_provider.dart';
 import 'package:finman/features/dashboard/widgets/balance_card.dart';
+import 'package:finman/features/dashboard/widgets/empty_transactions.dart';
 import 'package:finman/features/dashboard/widgets/recent_transaction_tile.dart';
 import 'package:finman/features/dashboard/widgets/summary_card.dart';
 
@@ -21,6 +22,14 @@ class DashboardScreen extends ConsumerStatefulWidget {
 class _DashboardScreen extends ConsumerState<DashboardScreen> {
   bool isFabOpen = false;
 
+  void _closeFab() {
+    if (!isFabOpen) return;
+
+    setState(() {
+      isFabOpen = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final dashboardAsync = ref.watch(dashboardProvider);
@@ -29,63 +38,66 @@ class _DashboardScreen extends ConsumerState<DashboardScreen> {
       appBar: AppBar(title: Text("Dashboard")),
       body: dashboardAsync.when(
         data: (summary) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                BalanceCard(balance: summary.balance),
-                SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SummaryCard(
-                        title: "Income",
-                        amount: summary.totalIncome,
-                        icon: Icons.arrow_upward_outlined,
+          return RefreshIndicator(
+            onRefresh: () async =>
+                ref.read(dashboardProvider.notifier).refresh(),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  BalanceCard(balance: summary.balance),
+                  SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SummaryCard(
+                          title: "Income",
+                          amount: summary.totalIncome,
+                          icon: Icons.arrow_upward_outlined,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: SummaryCard(
-                        title: "Expense",
-                        amount: summary.totalExpense,
-                        icon: Icons.arrow_downward_outlined,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: SummaryCard(
+                          title: "Expense",
+                          amount: summary.totalExpense,
+                          icon: Icons.arrow_downward_outlined,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Recent Transactions',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    TextButton.icon(
-                      onPressed: () {
-                        context.push(AppRoutes.transactions);
-                      },
-                      label: const Text('View all'),
-                      icon: const Icon(Icons.arrow_forward, size: 16),
-                    ),
-                  ],
-                ),
-                if (summary.recentTransactions.isEmpty)
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24),
-                      child: Text('No transactions yet'),
-                    ),
-                  )
-                else
-                  ...summary.recentTransactions.map(
-                    (e) => RecentTransactionTile(
-                      transaction: e,
-                    ),
+                    ],
                   ),
-                const SizedBox(height: 100)
-              ],
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Recent Transactions',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      TextButton.icon(
+                        onPressed: () {
+                          context.push(AppRoutes.transactions);
+                        },
+                        label: const Text('View all'),
+                        icon: const Icon(Icons.arrow_forward, size: 16),
+                      ),
+                    ],
+                  ),
+                  summary.recentTransactions.isEmpty
+                      ? const EmptyTransactions()
+                      : Column(
+                          children: [
+                            ...summary.recentTransactions.map(
+                              (transaction) => RecentTransactionTile(
+                                transaction: transaction,
+                              ),
+                            ),
+                          ],
+                        ),
+                  const SizedBox(height: 100)
+                ],
+              ),
             ),
           );
         },
@@ -102,6 +114,7 @@ class _DashboardScreen extends ConsumerState<DashboardScreen> {
             FloatingActionButton.small(
               heroTag: "Category",
               onPressed: () {
+                _closeFab();
                 context.push(AppRoutes.categories);
               },
               child: const Icon(Icons.category),
@@ -110,6 +123,7 @@ class _DashboardScreen extends ConsumerState<DashboardScreen> {
             FloatingActionButton.small(
               heroTag: "Transaction",
               onPressed: () {
+                _closeFab();
                 context.push(AppRoutes.transactions);
               },
               child: const Icon(Icons.payment),
