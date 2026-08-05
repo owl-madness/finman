@@ -1,10 +1,9 @@
 import 'package:finman/app/router/app_routes.dart';
 
-import 'package:finman/core/utils/string_utils.dart';
-
-import 'package:finman/features/categories/constants/category_icons.dart';
-
 import 'package:finman/features/dashboard/providers/dashboard_provider.dart';
+import 'package:finman/features/dashboard/widgets/balance_card.dart';
+import 'package:finman/features/dashboard/widgets/recent_transaction_tile.dart';
+import 'package:finman/features/dashboard/widgets/summary_card.dart';
 
 import 'package:flutter/material.dart';
 
@@ -34,57 +33,58 @@ class _DashboardScreen extends ConsumerState<DashboardScreen> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Current Balance"),
-                    Text(
-                      FinmanStringUtils.formatCurrency(summary.balance),
-                    ),
-                  ],
-                ),
+                BalanceCard(balance: summary.balance),
+                SizedBox(height: 20),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(30.0),
-                        child: Text(
-                          "Expense: ${FinmanStringUtils.formatCurrency(summary.totalExpense)}",
-                        ),
+                    Expanded(
+                      child: SummaryCard(
+                        title: "Income",
+                        amount: summary.totalIncome,
+                        icon: Icons.arrow_upward_outlined,
                       ),
                     ),
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(30.0),
-                        child: Text(
-                          "Income: ${FinmanStringUtils.formatCurrency(summary.totalIncome)}",
-                        ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: SummaryCard(
+                        title: "Expense",
+                        amount: summary.totalExpense,
+                        icon: Icons.arrow_downward_outlined,
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Recent Transactions",
+                      'Recent Transactions',
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    IconButton(
-                        onPressed: () {
-// navigate to transactions
-
-                          context.push(AppRoutes.transactions);
-                        },
-                        icon: Icon(Icons.arrow_forward_ios_sharp))
+                    TextButton.icon(
+                      onPressed: () {
+                        context.push(AppRoutes.transactions);
+                      },
+                      label: const Text('View all'),
+                      icon: const Icon(Icons.arrow_forward, size: 16),
+                    ),
                   ],
                 ),
-                ...summary.recentTransactions.map(
-                  (e) => ListTile(
-                    title: Text(e.title),
-                    trailing: Icon(getCategoryIcon(e.category.icon)?.icon),
+                if (summary.recentTransactions.isEmpty)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text('No transactions yet'),
+                    ),
+                  )
+                else
+                  ...summary.recentTransactions.map(
+                    (e) => RecentTransactionTile(
+                      transaction: e,
+                    ),
                   ),
-                )
+                const SizedBox(height: 100)
               ],
             ),
           );

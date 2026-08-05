@@ -1,5 +1,5 @@
 import 'package:finman/app/router/app_routes.dart';
-import 'package:finman/core/utils/date_utils.dart';
+import 'package:finman/core/utils/date_utils.dart' as core;
 import 'package:finman/core/utils/string_utils.dart';
 import 'package:finman/features/categories/constants/category_icons.dart';
 import 'package:finman/features/transactions/providers/transaction_provider.dart';
@@ -36,7 +36,7 @@ class TransactionListScreen extends ConsumerWidget {
                 ),
                 title: Text(FinmanStringUtils.capitalise(transaction.title)),
                 subtitle: Text(
-                  "${transaction.category.name} • ${FinmanDateUtils.formatDate(transaction.transactionDate)}",
+                  "${transaction.category.name} • ${core.DateUtils.formatDate(transaction.transactionDate)}",
                 ),
                 trailing: Text(
                   FinmanStringUtils.formatCurrency(transaction.amount),

@@ -1,5 +1,5 @@
 import 'package:finman/core/database/app_database.dart';
-import 'package:finman/core/utils/date_utils.dart';
+import 'package:finman/core/utils/date_utils.dart' as core;
 import 'package:finman/core/validators/validators.dart';
 import 'package:finman/core/widgets/finman_confirm_dialog.dart';
 import 'package:finman/core/widgets/finman_loading_button.dart';
@@ -189,7 +189,7 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                       leading: const Icon(Icons.calendar_today),
                       title: const Text('Transaction Date'),
                       subtitle: Text(
-                        FinmanDateUtils.formatDate(_transactionDate),
+                        core.DateUtils.formatDate(_transactionDate),
                       ),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () async {
@@ -230,14 +230,14 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
 
                           final amountInPaisa = amount * 100;
                           if (widget.transactionModel != null) {
-                            final transaction = widget.transactionModel!
-                                .copyWith(
-                                  amount: amountInPaisa,
-                                  title: title,
-                                  note: _noteController.text.trim(),
-                                  transactionDate: _transactionDate,
-                                  category: _selectedCategory,
-                                );
+                            final transaction =
+                                widget.transactionModel!.copyWith(
+                              amount: amountInPaisa,
+                              title: title,
+                              note: _noteController.text.trim(),
+                              transactionDate: _transactionDate,
+                              category: _selectedCategory,
+                            );
 
                             await ref
                                 .read(transactionProvider.notifier)
@@ -274,7 +274,6 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
                         }
                       },
                     ),
-
                     const SizedBox(height: 24),
                   ],
                 ),

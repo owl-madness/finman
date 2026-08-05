@@ -1,4 +1,6 @@
 class FinmanStringUtils {
+  FinmanStringUtils._();
+
   static String capitalise(String text) {
     if (text.isEmpty) return text;
 
